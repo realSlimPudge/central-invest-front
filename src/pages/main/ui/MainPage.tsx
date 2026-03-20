@@ -1,10 +1,14 @@
-import { Button } from "@/shared/components/ui/button";
+import { HoleBackground } from "@/shared/components/ui/hole";
 
 export function MainPage() {
   return (
     <section>
-      {" "}
-      <Button variant="default">asdfasdf</Button>mainpage
+      <div className="absolute z-10">
+        <div className="w-dvw h-dvh flex justify-center items-center">
+          <h1>Central AI</h1>
+        </div>
+      </div>
+      <HoleBackground className="absolute inset-0 flex items-center justify-center rounded-xl" />
     </section>
   );
 }
