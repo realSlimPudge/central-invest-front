@@ -1,3 +1,10 @@
+import { Button } from "@/shared/components/ui/button";
+
 export function MainPage() {
-  return <section>mainpage</section>;
+  return (
+    <section>
+      {" "}
+      <Button variant="default">asdfasdf</Button>mainpage
+    </section>
+  );
 }
