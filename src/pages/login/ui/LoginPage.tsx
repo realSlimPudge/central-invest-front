@@ -2,7 +2,7 @@ import { AuthForm } from "@/features/auth/ui/AuthForm";
 
 export function LoginPage() {
   return (
-    <section className="w-dvw h-dvh flex items-center justify-center">
+    <section className="flex min-h-dvh items-center justify-center px-4 py-8 sm:px-6">
       <AuthForm />
     </section>
   );

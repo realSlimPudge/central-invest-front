@@ -25,17 +25,17 @@ export const Route = createFileRoute("/notebooks")({
   ),
 
   component: () => (
-    <div>
-      <SidebarProvider>
-        <AppHeader />
-        <TooltipProvider>
-          <AppSidebar />
-          <SidebarInset>
+    <SidebarProvider>
+      <TooltipProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <div className="relative">
+            <AppHeader />
             <Outlet />
             <Toaster />
-          </SidebarInset>
-        </TooltipProvider>
-      </SidebarProvider>
-    </div>
+          </div>
+        </SidebarInset>
+      </TooltipProvider>
+    </SidebarProvider>
   ),
 });

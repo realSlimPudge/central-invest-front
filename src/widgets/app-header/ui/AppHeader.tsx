@@ -6,7 +6,7 @@ export function AppHeader() {
   return (
     <>
       {isMobile && (
-        <div className="w-dww h-12 sticky left-0 top-0 flex px-2 items-center justify-center">
+        <div className="sticky left-0 top-0 z-40 flex h-13 w-dvw items-center border-b border-border bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
           <SidebarTrigger />
         </div>
       )}

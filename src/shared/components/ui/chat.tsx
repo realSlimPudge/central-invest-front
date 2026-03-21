@@ -8,8 +8,8 @@ import { cn } from "@/shared/lib/utils";
 const chatMessageVariants = cva("rounded-3xl border px-4 py-4", {
   variants: {
     role: {
-      user: "ml-auto max-w-3xl border-border bg-card",
-      assistant: "mr-auto max-w-4xl border-border bg-card/80",
+      user: "ml-auto max-w-[92%] border-border bg-card sm:max-w-3xl",
+      assistant: "mr-auto max-w-[92%] border-border bg-card/80 sm:max-w-4xl",
     },
   },
   defaultVariants: {
@@ -46,7 +46,7 @@ function ChatViewport({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "max-h-[62vh] overflow-y-auto rounded-3xl border border-border bg-muted/20 px-4 py-4",
+        "min-h-[18rem] max-h-[52dvh] overflow-y-auto rounded-3xl border border-border bg-muted/20 px-3 py-3 sm:max-h-[62vh] sm:px-4 sm:py-4",
         className,
       )}
       data-slot="chat-viewport"
@@ -55,10 +55,7 @@ function ChatViewport({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function ChatMessageList({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+function ChatMessageList({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn("space-y-4", className)}
@@ -72,8 +69,7 @@ function ChatMessage({
   className,
   role,
   ...props
-}: React.ComponentProps<"div"> &
-  VariantProps<typeof chatMessageVariants>) {
+}: React.ComponentProps<"div"> & VariantProps<typeof chatMessageVariants>) {
   return (
     <div
       className={cn(chatMessageVariants({ role, className }))}
@@ -129,10 +125,7 @@ function ChatMessageAuthor({
   );
 }
 
-function ChatMessageBody({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+function ChatMessageBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn("mt-3 text-sm leading-7 text-foreground", className)}
@@ -145,7 +138,10 @@ function ChatMessageBody({
 function ChatComposer({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("rounded-3xl border border-border bg-card px-4 py-4", className)}
+      className={cn(
+        "rounded-3xl border border-border bg-card px-3 py-3 sm:px-4 sm:py-4",
+        className,
+      )}
       data-slot="chat-composer"
       {...props}
     />
@@ -159,7 +155,7 @@ function ChatComposerTextarea({
   return (
     <Textarea
       className={cn(
-        "min-h-28 resize-none border-none bg-transparent px-0 py-0 text-sm leading-7 shadow-none focus-visible:ring-0",
+        "min-h-24 resize-none border-none bg-transparent px-0 py-0 text-sm leading-7 shadow-none focus-visible:ring-0 sm:min-h-28",
         className,
       )}
       data-slot="chat-composer-textarea"
@@ -184,10 +180,7 @@ function ChatComposerFooter({
   );
 }
 
-function ChatComposerHint({
-  className,
-  ...props
-}: React.ComponentProps<"p">) {
+function ChatComposerHint({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
       className={cn("text-xs leading-5 text-muted-foreground", className)}
@@ -203,17 +196,17 @@ function ChatComposerActions({
 }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("flex gap-3", className)}
+      className={cn(
+        "flex w-full flex-col-reverse gap-3 sm:w-auto sm:flex-row [&>*]:w-full sm:[&>*]:w-auto",
+        className,
+      )}
       data-slot="chat-composer-actions"
       {...props}
     />
   );
 }
 
-function ChatSuggestions({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+function ChatSuggestions({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn("flex flex-wrap gap-2", className)}

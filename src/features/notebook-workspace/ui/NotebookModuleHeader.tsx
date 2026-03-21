@@ -18,12 +18,12 @@ export function NotebookModuleHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between",
+        "flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-start lg:justify-between",
         className,
       )}
     >
       <div className="max-w-3xl space-y-1.5">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
           {title}
         </h1>
         {description ? (
@@ -34,7 +34,7 @@ export function NotebookModuleHeader({
       </div>
 
       {actions ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
           {actions}
         </div>
       ) : null}

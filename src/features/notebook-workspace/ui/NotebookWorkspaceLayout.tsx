@@ -24,10 +24,10 @@ export function NotebookWorkspaceLayout() {
         pathname={pathname}
         title={notebook?.title}
       />
-      <section className="min-h-screen bg-background px-4 py-6 text-foreground sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1480px] space-y-6">
+      <section className="min-h-dvh bg-background px-3 py-4 text-foreground sm:px-6 sm:py-6 lg:px-8">
+        <div className="mx-auto max-w-[1480px] space-y-4 sm:space-y-6">
           <Card className="overflow-visible ring-1 ring-border/80 lg:hidden">
-            <CardContent className="overflow-visible space-y-4 p-5">
+            <CardContent className="overflow-visible space-y-4 p-3 sm:p-5">
               {notebookQuery.isPending ? (
                 <Skeleton className="h-11 w-full rounded-xl" />
               ) : (

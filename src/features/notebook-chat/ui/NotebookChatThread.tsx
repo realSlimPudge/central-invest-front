@@ -31,7 +31,7 @@ function MessageSources({
 }) {
   return (
     <Collapsible className="mt-4" defaultOpen={false}>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
             Опора на источники
@@ -43,7 +43,7 @@ function MessageSources({
 
         <CollapsibleTrigger asChild>
           <Button
-            className="group h-8 rounded-full px-3 text-xs"
+            className="group h-8 self-start rounded-full px-3 text-xs"
             size="sm"
             type="button"
             variant="ghost"
@@ -90,7 +90,7 @@ export function NotebookChatThread({
               key={message.id}
               className={
                 message.role === "user"
-                  ? "ml-auto w-fit max-w-3xl border-transparent bg-transparent px-0 py-0 shadow-none"
+                  ? "ml-auto w-fit max-w-[88%] border-transparent bg-transparent px-0 py-0 shadow-none sm:max-w-3xl"
                   : undefined
               }
               role={message.role}
@@ -138,7 +138,7 @@ export function NotebookChatThread({
           ))}
         </ChatMessageList>
       ) : isHistoryPending ? (
-        <div className="rounded-3xl border border-border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-3xl border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground sm:px-6 sm:py-10">
           Загружаю историю диалога...
         </div>
       ) : (

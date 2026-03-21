@@ -28,7 +28,7 @@ export function NotebookChatComposer({
     <ChatComposer>
       <ChatComposerTextarea
         disabled={isStreaming}
-        className="px-3 pt-1"
+        className="px-1 pt-1 sm:px-3"
         onChange={(event) => onInputChange(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
@@ -45,12 +45,18 @@ export function NotebookChatComposer({
         </ChatComposerHint>
         <ChatComposerActions>
           {isStreaming ? (
-            <Button onClick={onStop} type="button" variant="outline">
+            <Button
+              className="w-full sm:w-auto"
+              onClick={onStop}
+              type="button"
+              variant="outline"
+            >
               <StopCircle className="size-4" />
               Остановить
             </Button>
           ) : null}
           <Button
+            className="w-full sm:w-auto"
             disabled={!input.trim() || isStreaming}
             onClick={onSend}
             type="button"

@@ -165,7 +165,7 @@ export function NotebookFlashcardsTab({
         actions={
           <>
             <Input
-              className="w-28"
+              className="w-full sm:w-28"
               max={50}
               min={1}
               onChange={(event) =>

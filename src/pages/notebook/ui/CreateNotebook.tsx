@@ -22,18 +22,18 @@ export function CreateNotebookPage() {
       initial={{ y: -10, opacity: 0 }}
       transition={{ type: "tween" }}
     >
-      <Empty className="h-full w-full justify-center ">
-        <EmptyHeader>
+      <Empty className="h-dvh w-full justify-center items-center px-4 py-10 sm:px-6 sm:py-6">
+        <EmptyHeader className="max-w-xs gap-3 sm:max-w-sm">
           <EmptyMedia variant="icon">
             <FileIcon />
           </EmptyMedia>
-          <EmptyTitle className="text-xl">Новый блокнот</EmptyTitle>
-          <EmptyDescription className="text-base">
+          <EmptyTitle className="text-lg sm:text-xl">Новый блокнот</EmptyTitle>
+          <EmptyDescription className="text-sm sm:text-base">
             Создайте новый блокнот
           </EmptyDescription>
         </EmptyHeader>
-        <EmptyContent>
-          <Button size="lg" onClick={showModal}>
+        <EmptyContent className="w-full max-w-xs sm:max-w-sm">
+          <Button className="w-full sm:w-auto" size="lg" onClick={showModal}>
             Создать
           </Button>
         </EmptyContent>

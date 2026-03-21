@@ -14,12 +14,12 @@ export function MainPage() {
     return "/login";
   };
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6 py-16 text-foreground">
+    <section className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-12 text-foreground sm:px-6 sm:py-16">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,var(--card),transparent_52%)] opacity-90" />
-      <div className="pointer-events-none absolute left-1/2 top-24 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/12 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-16 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/12 blur-3xl sm:top-24 sm:h-72 sm:w-72" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center text-center">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2 text-sm text-muted-foreground shadow-sm">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs text-muted-foreground shadow-sm sm:mb-8 sm:px-5 sm:py-2 sm:text-sm">
           Рабочее пространство для документов и знаний
           <ArrowRight className="size-4 text-muted-foreground" />
         </div>
@@ -28,7 +28,7 @@ export function MainPage() {
           as="h1"
           animation="blurInUp"
           by="word"
-          className="max-w-5xl text-5xl leading-[0.95] font-semibold tracking-[-0.06em] text-[var(--text-h)] sm:text-6xl lg:text-7xl"
+          className="max-w-5xl text-4xl leading-[0.95] font-semibold tracking-[-0.06em] text-[var(--text-h)] sm:text-6xl lg:text-7xl"
         >
           Central AI помогает превращать документы в структурированные знания
         </TextAnimate>
@@ -38,7 +38,7 @@ export function MainPage() {
           animation="fadeIn"
           delay={0.2}
           by="line"
-          className="mt-8 max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl"
+          className="mt-6 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-8 sm:text-xl sm:leading-8"
         >
           Загружай материалы, общайся с источниками, собирай саммари,
           интеллект-карты и таблицы в одном понятном интерфейсе с прозрачной
@@ -46,7 +46,10 @@ export function MainPage() {
         </TextAnimate>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <Button asChild className="h-12 rounded-xl px-7 text-base">
+          <Button
+            asChild
+            className="h-11 w-full rounded-xl px-7 text-base sm:h-12 sm:w-auto"
+          >
             <Link to={link()}>Начать работу</Link>
           </Button>
         </div>

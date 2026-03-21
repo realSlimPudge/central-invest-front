@@ -1,4 +1,7 @@
-import type { Notebook, NotebookSource } from "@/entities/notebook/api/dto/notebook.types";
+import type {
+  Notebook,
+  NotebookSource,
+} from "@/entities/notebook/api/dto/notebook.types";
 
 export type NotebookModuleId =
   | "overview"
@@ -18,6 +21,11 @@ export type NotebookModuleAvailability = {
   enabled: boolean;
   reason?: string;
 };
+
+export type NotebookModuleAvailabilityMap = Record<
+  NotebookModuleId,
+  NotebookModuleAvailability
+>;
 
 type NotebookSignals = {
   readySourcesCount: number;
@@ -66,7 +74,6 @@ const moduleRules: Partial<Record<NotebookModuleId, ModuleRule>> = {
       "суд",
     ],
   },
-
 };
 
 function normalizeSignalValue(value?: string | null) {
@@ -160,8 +167,7 @@ export function getNotebookModuleAvailability(
   ) {
     return {
       enabled: false,
-      reason:
-        "Сначала загрузи и дождись обработки хотя бы одного источника.",
+      reason: "Сначала загрузи и дождись обработки хотя бы одного источника.",
     };
   }
 
@@ -210,5 +216,5 @@ export function getNotebookModuleAvailabilityMap(
       moduleId,
       getNotebookModuleAvailability(notebook, moduleId),
     ]),
-  ) as Record<NotebookModuleId, NotebookModuleAvailability>;
+  ) as NotebookModuleAvailabilityMap;
 }

@@ -19,6 +19,8 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/shared/components/ui/navigation-menu";
+import { NotebookSectionMenuMobile } from "@/features/notebook-workspace/ui/NotebookSectionMenuMobile";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
 
 const notebookNavigationItemClassName =
@@ -165,6 +167,18 @@ export function NotebookSectionMenu({
   className,
   listClassName,
 }: NotebookSectionMenuProps) {
+  const isMobile = useIsMobile();
+
+  if (!compact && isMobile) {
+    return (
+      <NotebookSectionMenuMobile
+        moduleAvailability={moduleAvailability}
+        notebookId={notebookId}
+        pathname={pathname}
+      />
+    );
+  }
+
   return (
     <NavigationMenu
       className={cn(
@@ -192,7 +206,7 @@ export function NotebookSectionMenu({
                   navigationMenuTriggerStyle(),
                   compact
                     ? "h-8 rounded-full bg-card px-4 text-sm text-foreground hover:bg-muted/60 focus:bg-muted/60 data-[open]:bg-muted/70"
-                    : "h-9 rounded-xl bg-card px-4 text-foreground hover:bg-muted/60 focus:bg-muted/60 data-[open]:bg-muted/70",
+                    : "h-10 rounded-full bg-card px-4 text-foreground hover:bg-muted/60 focus:bg-muted/60 data-[open]:bg-muted/70",
                   sectionActive && "bg-muted/70 text-foreground",
                 )}
               >

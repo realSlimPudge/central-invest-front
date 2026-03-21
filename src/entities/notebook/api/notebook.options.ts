@@ -14,6 +14,7 @@ export const notebookOptions = {
     queryOptions({
       queryKey: notebookKeys.detail(notebookId),
       queryFn: () => notebookApi.getOne(notebookId),
+      staleTime: 1000 * 30,
     }),
   chat: (notebookId: string) =>
     queryOptions({

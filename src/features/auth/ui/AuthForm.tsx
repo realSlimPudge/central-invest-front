@@ -82,11 +82,11 @@ export function AuthForm() {
   };
 
   return (
-    <div className="flex flex-col gap-y-2 w-full  max-w-sm ">
+    <div className="flex w-full max-w-sm flex-col gap-y-3 sm:gap-y-2">
       <Tabs
         value={activeTab}
         onValueChange={handleTabChange}
-        className="w-full gap-6"
+        className="w-full gap-4 sm:gap-6"
       >
         <TabsList className="grid h-11 w-full grid-cols-2 rounded-xl bg-muted p-1">
           <TabsTrigger value="login" className="rounded-lg font-semibold">
@@ -97,14 +97,14 @@ export function AuthForm() {
           </TabsTrigger>
         </TabsList>
       </Tabs>
-      <Card className="w-full bg-transparent max-w-sm border-none p-0 shadow-none">
-        <CardHeader className="text-center pt-4">
+      <Card className="w-full max-w-sm border-none bg-transparent p-0 shadow-none">
+        <CardHeader className="px-0 pt-2 text-center sm:pt-4">
           <CardTitle className="sm:text-2xl text-xl font-bold">
             {title}
           </CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
-        <CardContent className="py-6">
+        <CardContent className="px-0 py-5 sm:py-6">
           <form
             id="login-form"
             onSubmit={(e) => {
@@ -188,7 +188,7 @@ export function AuthForm() {
           </form>
         </CardContent>
         {error && (
-          <p className="text-destructive text-start ml-4">
+          <p className="px-1 text-start text-sm text-destructive sm:px-0">
             {activeTab === "login"
               ? error.message === "UNAUTHORIZED"
                 ? "Неверный логин или пароль"
@@ -196,7 +196,7 @@ export function AuthForm() {
               : error.message}
           </p>
         )}
-        <CardFooter>
+        <CardFooter className="px-0">
           <Button
             variant="default"
             disabled={isLoading}
