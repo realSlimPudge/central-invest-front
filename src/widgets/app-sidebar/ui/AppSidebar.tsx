@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from "@/shared/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import { PlusCircle, User } from "lucide-react";
+import { Notebook, PlusCircle, User } from "lucide-react";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { notebookOptions } from "@/entities/notebook/api/notebook.options";
@@ -86,6 +86,7 @@ export function AppSidebar() {
                         "transition-all duration-300 text-muted-foreground",
                       )}
                     >
+                      <Notebook />
                       <span className="text-md">{notebook.title}</span>
                     </Link>
                   </SidebarMenuButton>

@@ -25,7 +25,7 @@ export function NotebookWorkspaceDesktopHeader({
 }: NotebookWorkspaceDesktopHeaderProps) {
   return (
     <div className="sticky top-0 left-0 w-full z-30 hidden lg:block ">
-      <div className="grid h-13 py-2 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-6 bg-sidebar border border-sidebar-border border-t-transparent border-l-transparent px-5 ">
+      <div className="grid h-13 py-2 grid-cols-[minmax(0,1fr)_minmax(0,800px)_minmax(0,1fr)] items-center gap-6 bg-sidebar border border-sidebar-border border-t-transparent border-l-transparent px-5 ">
         <div className="min-w-0">
           {isPending ? (
             <Skeleton className="h-8 w-64 rounded-xl" />

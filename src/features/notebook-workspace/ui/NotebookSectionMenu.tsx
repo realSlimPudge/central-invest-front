@@ -21,6 +21,9 @@ import {
 } from "@/shared/components/ui/navigation-menu";
 import { cn } from "@/shared/lib/utils";
 
+const notebookNavigationItemClassName =
+  "flex w-full min-h-20 min-w-0 items-start gap-3 rounded-xl px-3 py-3 no-underline outline-none transition-colors select-none";
+
 function resolveNotebookPath(template: string, notebookId: string) {
   return template.replace("$id", notebookId);
 }
@@ -77,14 +80,14 @@ function NotebookNavigationItem({
     <>
       <div
         className={cn(
-          "flex size-9 items-center justify-center rounded-lg border border-border bg-muted text-foreground",
-          isActive && "border-primary/20 bg-primary/10 text-foreground",
-          disabled && "border-border bg-muted/60 text-muted-foreground",
+          "flex size-9 items-center justify-center rounded-lg bg-muted/60 text-foreground transition-colors",
+          isActive && "bg-muted text-foreground",
+          disabled && "bg-muted/40 text-muted-foreground",
         )}
       >
         <Icon className="size-4" />
       </div>
-      <div className="flex min-w-0 max-w-[80%] flex-col gap-1 text-sm">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
         <div className="flex items-center gap-2">
           <div
             className={cn(
@@ -95,12 +98,12 @@ function NotebookNavigationItem({
             {title}
           </div>
           {disabled ? (
-            <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               Недоступно
             </span>
           ) : null}
         </div>
-        <div className="line-clamp-3 w-full truncate leading-5 text-muted-foreground wrap-break-word">
+        <div className="line-clamp-3 w-full leading-5 text-muted-foreground wrap-break-word">
           {disabled ? (reason ?? description) : description}
         </div>
       </div>
@@ -109,10 +112,13 @@ function NotebookNavigationItem({
 
   if (disabled) {
     return (
-      <li {...props}>
+      <li className="min-w-0 w-full" {...props}>
         <div
           aria-disabled="true"
-          className="flex min-h-20 min-w-0 cursor-not-allowed gap-3 rounded-xl border border-dashed border-border bg-muted/20 no-underline opacity-70 outline-none select-none"
+          className={cn(
+            notebookNavigationItemClassName,
+            "cursor-not-allowed opacity-70",
+          )}
           data-module={module}
         >
           {content}
@@ -122,13 +128,13 @@ function NotebookNavigationItem({
   }
 
   return (
-    <li {...props}>
+    <li className="min-w-0 w-full" {...props}>
       <NavigationMenuLink asChild>
         <Link
           className={cn(
-            "flex min-h-20 min-w-0 gap-3 rounded-xl border no-underline outline-none transition-colors select-none",
-            "border-border bg-card hover:bg-muted focus:bg-muted",
-            isActive && "border-primary bg-muted",
+            notebookNavigationItemClassName,
+            "bg-transparent hover:bg-muted/50 focus:bg-muted/50",
+            isActive && "bg-muted/70",
           )}
           params={{ id: notebookId }}
           preload="intent"
@@ -162,13 +168,12 @@ export function NotebookSectionMenu({
   return (
     <NavigationMenu
       className={cn(
-        "max-w-full justify-start",
+        "w-full max-w-full justify-start",
         compact && "justify-center",
         className,
       )}
       delayDuration={0}
       skipDelayDuration={0}
-      viewport={false}
     >
       <NavigationMenuList
         className={cn(
@@ -186,42 +191,54 @@ export function NotebookSectionMenu({
                 className={cn(
                   navigationMenuTriggerStyle(),
                   compact
-                    ? "h-8 rounded-full border border-border bg-card px-4 text-sm text-foreground hover:bg-muted focus:bg-muted data-[open]:bg-muted"
-                    : "h-9 rounded-xl border border-border bg-card px-4 text-foreground hover:bg-muted focus:bg-muted data-[open]:bg-muted",
-                  sectionActive && "border-primary bg-muted text-foreground",
+                    ? "h-8 rounded-full bg-card px-4 text-sm text-foreground hover:bg-muted/60 focus:bg-muted/60 data-[open]:bg-muted/70"
+                    : "h-9 rounded-xl bg-card px-4 text-foreground hover:bg-muted/60 focus:bg-muted/60 data-[open]:bg-muted/70",
+                  sectionActive && "bg-muted/70 text-foreground",
                 )}
               >
                 {section.label}
               </NavigationMenuTrigger>
-              <NavigationMenuContent className="z-20 w-[400px] md:w-[540px] lg:w-[640px]">
-                <ul className="grid gap-2 md:grid-cols-2">
-                  {section.items.map(
-                    ({ module, to, label, description, icon: Icon, exact }) => {
-                      const resolvedPath = resolveNotebookPath(to, notebookId);
-                      const isActive = isNotebookSectionPathActive(
-                        pathname,
-                        resolvedPath,
+              <NavigationMenuContent className="z-20">
+                <div className="box-border w-[340px] p-3 md:w-[720px] lg:w-[780px]">
+                  <ul className="grid gap-2 md:grid-cols-2">
+                    {section.items.map(
+                      ({
+                        module,
+                        to,
+                        label,
+                        description,
+                        icon: Icon,
                         exact,
-                      );
-                      const availability = moduleAvailability[module];
+                      }) => {
+                        const resolvedPath = resolveNotebookPath(
+                          to,
+                          notebookId,
+                        );
+                        const isActive = isNotebookSectionPathActive(
+                          pathname,
+                          resolvedPath,
+                          exact,
+                        );
+                        const availability = moduleAvailability[module];
 
-                      return (
-                        <NotebookNavigationItem
-                          description={description}
-                          disabled={!availability.enabled}
-                          icon={Icon}
-                          isActive={isActive}
-                          key={to}
-                          module={module}
-                          notebookId={notebookId}
-                          reason={availability.reason}
-                          title={label}
-                          to={to}
-                        />
-                      );
-                    },
-                  )}
-                </ul>
+                        return (
+                          <NotebookNavigationItem
+                            description={description}
+                            disabled={!availability.enabled}
+                            icon={Icon}
+                            isActive={isActive}
+                            key={to}
+                            module={module}
+                            notebookId={notebookId}
+                            reason={availability.reason}
+                            title={label}
+                            to={to}
+                          />
+                        );
+                      },
+                    )}
+                  </ul>
+                </div>
               </NavigationMenuContent>
             </NavigationMenuItem>
           );
