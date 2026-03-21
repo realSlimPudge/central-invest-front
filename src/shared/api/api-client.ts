@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig, type Method } from "axios";
 import Cookies from "js-cookie";
+import { ACCESS_TOKEN } from "../constants/auth-token";
 
 const API_BASE_URL = import.meta.env.VITE_PUBLIC_API_URL;
 
@@ -39,7 +40,8 @@ class ApiClient {
       signal,
       responseType,
       headers: {
-        Authorization: `Bearer ${Cookies.get("token") || ""}`,
+        Authorization: `Bearer ${Cookies.get(ACCESS_TOKEN) || ""}`,
+        credentials: "include",
         ...headers,
       },
     };

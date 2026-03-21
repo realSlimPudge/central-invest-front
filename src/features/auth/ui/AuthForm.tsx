@@ -24,6 +24,8 @@ import { toast } from "sonner";
 import { authOptions } from "@/entities/auth/api/auth.options";
 import { ACCESS_TOKEN } from "@/shared/constants/auth-token";
 import { formSchema } from "../config/login-scheme";
+import { queryClient } from "@/shared/lib/queryClient";
+import { authKeys } from "@/entities/auth/api/auth.keys";
 
 export function AuthForm() {
   const {
@@ -33,6 +35,7 @@ export function AuthForm() {
   } = useMutation({
     ...authOptions.login(),
     onSuccess: (data) => {
+      queryClient.fetchQuery({ queryKey: authKeys.me() });
       Cookies.set(ACCESS_TOKEN, data.accessToken);
       toast.success("Вы успешно вошли в аккаунт", { position: "top-center" });
     },

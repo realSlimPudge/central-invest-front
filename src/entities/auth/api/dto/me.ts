@@ -1,3 +1,3 @@
-export type MeRes = {
-  username: string;
-};
+import type { User } from "../../model/user";
+
+export type MeRes = User;
