@@ -1,7 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import Cookies from "js-cookie";
-import { ACCESS_TOKEN } from "@/shared/constants/auth-token";
 import { authOptions } from "../api/auth.options";
 import { authKeys } from "../api/auth.keys";
 import type { User } from "../model/user";
@@ -12,8 +10,6 @@ type AuthState =
   | { user: User; status: "AUTHENTICATED" };
 
 type AuthUtils = {
-  // signIn: () => void;
-  signOut: () => void;
   ensureData: () => Promise<User | null | undefined>;
 };
 
@@ -24,23 +20,12 @@ function useAuth(): AuthData {
 
   const authQuery = useQuery(authOptions.me());
 
-  const logout = useMutation({
-    ...authOptions.logout(),
-    onSuccess: () => {
-      queryClient.setQueryData(authKeys.me(), null);
-      Cookies.remove(ACCESS_TOKEN);
-    },
-  });
-
   useEffect(() => {
     if (authQuery.error === null) return;
     queryClient.setQueryData(authKeys.me(), null);
   }, [authQuery.error, queryClient]);
 
   const utils: AuthUtils = {
-    signOut: () => {
-      logout.mutate();
-    },
     ensureData: () => {
       return queryClient.ensureQueryData(authOptions.me());
     },

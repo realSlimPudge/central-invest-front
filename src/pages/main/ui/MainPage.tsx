@@ -3,8 +3,16 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { TextAnimate } from "@/shared/components/ui/text-animate";
+import { useAuth } from "@/entities/auth/lib/use-auth";
 
 export function MainPage() {
+  const { user } = useAuth();
+  const link = () => {
+    if (user) {
+      return "/dashboard";
+    }
+    return "/login";
+  };
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6 py-16 text-foreground">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,var(--card),transparent_52%)] opacity-90" />
@@ -39,14 +47,7 @@ export function MainPage() {
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
           <Button asChild className="h-12 rounded-xl px-7 text-base">
-            <Link to="/login">Начать работу</Link>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="h-12 rounded-xl border-border bg-card px-7 text-base text-foreground hover:bg-secondary"
-          >
-            Посмотреть демо
+            <Link to={link()}>Начать работу</Link>
           </Button>
         </div>
       </div>

@@ -18,6 +18,7 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { useMutation } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { Button } from "@/shared/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,23 +28,38 @@ import { formSchema } from "../config/login-scheme";
 import { queryClient } from "@/shared/lib/queryClient";
 import { authKeys } from "@/entities/auth/api/auth.keys";
 
+type AuthTab = "login" | "register";
+
 export function AuthForm() {
-  const {
-    isPending: isLoading,
-    mutateAsync: loginMutation,
-    error,
-  } = useMutation({
+  const [activeTab, setActiveTab] = useState<AuthTab>("login");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const loginMutation = useMutation({
     ...authOptions.login(),
     onSuccess: (data) => {
       queryClient.fetchQuery({ queryKey: authKeys.me() });
-      Cookies.set(ACCESS_TOKEN, data.accessToken);
+      Cookies.set(ACCESS_TOKEN, data.access_token);
       toast.success("Вы успешно вошли в аккаунт", { position: "top-center" });
     },
     onError: () => {
       toast.error("Неверные данные", { position: "top-center" });
     },
   });
-  const [showPassword, setShowPassword] = useState(false);
+
+  const registerMutation = useMutation({
+    ...authOptions.register(),
+    onSuccess: (_, body) => {
+      loginMutation.mutate(body);
+      toast.success("Аккаунт создан. Теперь войдите в систему", {
+        position: "top-center",
+      });
+      setActiveTab("login");
+      setShowPassword(false);
+    },
+    onError: () => {
+      toast.error("Не удалось создать аккаунт", { position: "top-center" });
+    },
+  });
 
   const form = useForm({
     defaultValues: {
@@ -54,17 +70,55 @@ export function AuthForm() {
       onChange: formSchema,
     },
     onSubmit: async ({ value }) => {
-      await loginMutation(value);
+      if (activeTab === "login") {
+        await loginMutation.mutateAsync(value);
+        return;
+      }
+
+      await registerMutation.mutateAsync(value);
     },
   });
+
+  const isLoading = loginMutation.isPending || registerMutation.isPending;
+  const error =
+    activeTab === "login" ? loginMutation.error : registerMutation.error;
+
+  const title = activeTab === "login" ? "Вход в аккаунт" : "Создание аккаунта";
+  const description =
+    activeTab === "login"
+      ? "Войдите в аккаунт для доступа к функциям"
+      : "Создайте аккаунт, чтобы начать работу с платформой";
+  const submitLabel = activeTab === "login" ? "Войти" : "Зарегистрироваться";
+  const passwordAutocomplete =
+    activeTab === "login" ? "current-password" : "new-password";
+
+  const handleTabChange = (value: string) => {
+    const nextTab = value as AuthTab;
+    setActiveTab(nextTab);
+    setShowPassword(false);
+    loginMutation.reset();
+    registerMutation.reset();
+  };
 
   return (
     <Card className="w-full bg-transparent max-w-sm border-none p-0 shadow-none">
       <CardHeader className="text-center pt-4">
-        <CardTitle className="text-2xl font-bold">Вход в аккаунт</CardTitle>
-        <CardDescription>
-          Войдите в аккаунт для доступа к функциям
-        </CardDescription>
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full gap-6"
+        >
+          <TabsList className="grid h-11 w-full grid-cols-2 rounded-xl bg-muted p-1">
+            <TabsTrigger value="login" className="rounded-lg font-semibold">
+              Вход
+            </TabsTrigger>
+            <TabsTrigger value="register" className="rounded-lg font-semibold">
+              Регистрация
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <CardTitle className="text-2xl font-bold">{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -94,7 +148,7 @@ export function AuthForm() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
                       placeholder="Введите логин"
-                      autoComplete="off"
+                      autoComplete="username"
                     />
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
@@ -122,7 +176,7 @@ export function AuthForm() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         placeholder="Введите пароль"
-                        autoComplete="off"
+                        autoComplete={passwordAutocomplete}
                         type={showPassword ? "text" : "password"}
                       />
                       <Button
@@ -151,7 +205,11 @@ export function AuthForm() {
       </CardContent>
       {error && (
         <p className="text-destructive text-start ml-4">
-          {error.message === "UNAUTHORIZED" && "Неверный логин или пароль"}
+          {activeTab === "login"
+            ? error.message === "UNAUTHORIZED"
+              ? "Неверный логин или пароль"
+              : error.message
+            : error.message}
         </p>
       )}
       <CardFooter>
@@ -162,7 +220,7 @@ export function AuthForm() {
           type="submit"
           form="login-form"
         >
-          {isLoading ? <Spinner /> : "Войти"}
+          {isLoading ? <Spinner /> : submitLabel}
         </Button>
       </CardFooter>
     </Card>

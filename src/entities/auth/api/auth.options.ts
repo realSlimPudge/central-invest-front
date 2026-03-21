@@ -1,14 +1,8 @@
-import {
-  queryOptions,
-  mutationOptions,
-  QueryCache,
-} from "@tanstack/react-query";
+import { queryOptions, mutationOptions } from "@tanstack/react-query";
 import { authKeys } from "./auth.keys";
 import Cookies from "js-cookie";
 import { authApi } from "./auth.api";
 import { ACCESS_TOKEN } from "@/shared/constants/auth-token";
-
-const queryCache = new QueryCache();
 
 export const authOptions = {
   login: () =>
@@ -19,6 +13,11 @@ export const authOptions = {
         Cookies.remove(ACCESS_TOKEN);
       },
     }),
+  register: () =>
+    mutationOptions({
+      mutationKey: authKeys.register(),
+      mutationFn: authApi.register,
+    }),
   me: () =>
     queryOptions({
       queryKey: authKeys.me(),
@@ -26,11 +25,5 @@ export const authOptions = {
       staleTime: 1000 * 60 * 5, //5 mimutes
       retry: 1,
       refetchOnWindowFocus: true,
-    }),
-  logout: () =>
-    mutationOptions({
-      mutationKey: authKeys.logout(),
-      mutationFn: () => authApi.logout(),
-      onSuccess: () => queryCache.clear(),
     }),
 };

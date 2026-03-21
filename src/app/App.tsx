@@ -19,7 +19,7 @@ function RouterProviderWithContext() {
   //Ревалидациия роутинга при изменении чувтсвительных данных
   useEffect(() => {
     router.invalidate();
-  }, [auth.status, auth.user?.id]);
+  }, [auth.status, auth.user?.user_id]);
 
   return <RouterProvider router={router} context={{ auth }} />;
 }

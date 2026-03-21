@@ -1,11 +1,5 @@
 export type User = {
-  id: number;
+  user_id: string;
   username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  gender: "male" | "female";
-  image: string;
-  accessToken: string;
-  refreshToken: string;
+  created_at: string;
 };
