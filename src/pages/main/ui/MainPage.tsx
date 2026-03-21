@@ -9,7 +9,7 @@ export function MainPage() {
   const { user } = useAuth();
   const link = () => {
     if (user) {
-      return "/dashboard";
+      return "/notebooks";
     }
     return "/login";
   };

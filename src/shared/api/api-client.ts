@@ -1,13 +1,11 @@
 import axios, { type AxiosRequestConfig, type Method } from "axios";
-import Cookies from "js-cookie";
-import { ACCESS_TOKEN } from "../constants/auth-token";
-
-const API_BASE_URL = import.meta.env.VITE_PUBLIC_API_URL;
+import { API_BASE_URL } from "@/shared/constants/api";
+import { getAccessToken } from "@/shared/lib/access-token";
 
 type RequestParams = {
   method?: Method;
   path: string;
-  body?: object;
+  body?: unknown;
   signal?: AbortSignal;
   headers?: Record<string, string>;
   responseType?: AxiosRequestConfig["responseType"];
@@ -40,7 +38,7 @@ class ApiClient {
       signal,
       responseType,
       headers: {
-        Authorization: `Bearer ${Cookies.get(ACCESS_TOKEN) || ""}`,
+        Authorization: `Bearer ${getAccessToken() || ""}`,
         credentials: "include",
         ...headers,
       },

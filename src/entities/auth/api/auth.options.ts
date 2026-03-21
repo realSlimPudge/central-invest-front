@@ -1,8 +1,7 @@
 import { queryOptions, mutationOptions } from "@tanstack/react-query";
 import { authKeys } from "./auth.keys";
-import Cookies from "js-cookie";
 import { authApi } from "./auth.api";
-import { ACCESS_TOKEN } from "@/shared/constants/auth-token";
+import { clearAccessToken } from "@/shared/lib/access-token";
 
 export const authOptions = {
   login: () =>
@@ -10,7 +9,7 @@ export const authOptions = {
       mutationKey: authKeys.login(),
       mutationFn: authApi.login,
       onError: () => {
-        Cookies.remove(ACCESS_TOKEN);
+        clearAccessToken();
       },
     }),
   register: () =>
