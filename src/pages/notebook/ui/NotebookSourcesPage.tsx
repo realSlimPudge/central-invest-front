@@ -1,13 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AudioLines, Upload } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
+import type { NotebookCompareResult } from "@/entities/notebook/api/dto/notebook.types";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
+import { NotebookSourceComparePanel } from "@/features/notebook-sources/ui/NotebookSourceComparePanel";
 import { NotebookSourceList } from "@/features/notebook-sources/ui/NotebookSourceList";
 import { NotebookSourceUploadCard } from "@/features/notebook-sources/ui/NotebookSourceUploadCard";
-import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import {
+  getNotebookErrorMessage,
+  runNotebookRequestWithToast,
+} from "@/features/notebook-workspace/lib/notebook-ui";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
 import type { FileUploadProps } from "@/shared/components/ui/file-upload";
@@ -24,6 +29,22 @@ type UploadMutationResult = {
   successCount: number;
   failedFiles: File[];
 };
+
+function getDocumentUploadSuccessMessage(result: UploadMutationResult) {
+  if (result.successCount === result.total) {
+    return `Документы загружены: ${result.successCount}`;
+  }
+
+  return `Загружено ${result.successCount} из ${result.total} документов`;
+}
+
+function getMediaUploadSuccessMessage(result: UploadMutationResult) {
+  if (result.successCount === result.total) {
+    return `Обработано файлов: ${result.successCount}`;
+  }
+
+  return `Обработано ${result.successCount} из ${result.total} медиафайлов`;
+}
 
 const documentAccept = [
   ".pdf",
@@ -59,6 +80,33 @@ export function NotebookSourcesPage() {
   const { notebookId, notebook, notebookQuery } = useNotebookRoute();
   const [documentFiles, setDocumentFiles] = useState<File[]>([]);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
+  const [compareState, setCompareState] = useState<{
+    selectionKey: string;
+    result: NotebookCompareResult | null;
+  }>({
+    selectionKey: "",
+    result: null,
+  });
+
+  const readySourceIds = useMemo(
+    () =>
+      (notebook?.sources ?? [])
+        .filter((source) => !source.status || source.status === "ready")
+        .map((source) => source.id),
+    [notebook?.sources],
+  );
+  const activeSelectedSourceIds = useMemo(
+    () =>
+      selectedSourceIds.filter((sourceId) => readySourceIds.includes(sourceId)),
+    [readySourceIds, selectedSourceIds],
+  );
+  const selectionKey = useMemo(
+    () => [...activeSelectedSourceIds].sort().join("|"),
+    [activeSelectedSourceIds],
+  );
+  const compareResult =
+    compareState.selectionKey === selectionKey ? compareState.result : null;
 
   const invalidateNotebook = async () => {
     await Promise.all([
@@ -99,28 +147,11 @@ export function NotebookSourcesPage() {
 
       return { total: files.length, successCount, failedFiles };
     },
-    onSuccess: async ({ total, successCount, failedFiles }) => {
+    onSuccess: async ({ successCount, failedFiles }) => {
       setDocumentFiles(failedFiles);
       if (successCount > 0) {
         await invalidateNotebook();
       }
-
-      if (successCount === total) {
-        toast.success(`Документы загружены: ${successCount}`);
-        return;
-      }
-
-      if (successCount === 0) {
-        toast.error("Не удалось загрузить документы");
-        return;
-      }
-
-      toast.error(`Загружено ${successCount} из ${total} документов`);
-    },
-    onError: (error) => {
-      toast.error(
-        getNotebookErrorMessage(error, "Не удалось загрузить документы"),
-      );
     },
   });
 
@@ -154,28 +185,11 @@ export function NotebookSourcesPage() {
 
       return { total: files.length, successCount, failedFiles };
     },
-    onSuccess: async ({ total, successCount, failedFiles }) => {
+    onSuccess: async ({ successCount, failedFiles }) => {
       setMediaFiles(failedFiles);
       if (successCount > 0) {
         await invalidateNotebook();
       }
-
-      if (successCount === total) {
-        toast.success(`Обработано файлов: ${successCount}`);
-        return;
-      }
-
-      if (successCount === 0) {
-        toast.error("Не удалось обработать аудио или видео");
-        return;
-      }
-
-      toast.error(`Обработано ${successCount} из ${total} медиафайлов`);
-    },
-    onError: (error) => {
-      toast.error(
-        getNotebookErrorMessage(error, "Не удалось обработать аудио или видео"),
-      );
     },
   });
 
@@ -194,11 +208,58 @@ export function NotebookSourcesPage() {
     },
   });
 
+  const compareSourcesMutation = useMutation({
+    mutationKey: notebookKeys.compare(),
+    mutationFn: () => {
+      const [firstSourceId, secondSourceId] = activeSelectedSourceIds;
+
+      if (!firstSourceId || !secondSourceId) {
+        throw new Error("Для сравнения нужно выбрать ровно два источника");
+      }
+
+      return notebookApi.compareSources(notebookId, {
+        source_ids: [firstSourceId, secondSourceId],
+      });
+    },
+  });
+
   const handleFileReject: NonNullable<FileUploadProps["onFileReject"]> = (
     file,
     message,
   ) => {
     toast.error(`${file.name}: ${message}`);
+  };
+
+  const handleSourceSelectionChange = (sourceId: string, checked: boolean) => {
+    setSelectedSourceIds((current) => {
+      if (checked) {
+        if (current.length >= 2 && !current.includes(sourceId)) {
+          return current;
+        }
+
+        return current.includes(sourceId) ? current : [...current, sourceId];
+      }
+
+      return current.filter((id) => id !== sourceId);
+    });
+  };
+
+  const handleCompareSources = async () => {
+    if (activeSelectedSourceIds.length !== 2) {
+      return;
+    }
+
+    const result = await runNotebookRequestWithToast({
+      request: compareSourcesMutation.mutateAsync(),
+      loading: "Сравниваем выбранные источники...",
+      success: "Сравнение готово",
+      error: "Не удалось сравнить выбранные источники",
+    });
+
+    setCompareState({
+      selectionKey,
+      result,
+    });
   };
 
   return (
@@ -222,12 +283,32 @@ export function NotebookSourcesPage() {
           label="Загрузка документов"
           onFileReject={handleFileReject}
           onUpload={async (files, options) => {
-            await uploadDocumentsMutation.mutateAsync({
-              files,
-              onError: options.onError,
-              onProgress: options.onProgress,
-              onSuccess: options.onSuccess,
+            const request = uploadDocumentsMutation
+              .mutateAsync({
+                files,
+                onError: options.onError,
+                onProgress: options.onProgress,
+                onSuccess: options.onSuccess,
+              })
+              .then((result) => {
+                if (result.successCount === 0) {
+                  throw new Error("Не удалось загрузить документы");
+                }
+
+                return result;
+              });
+
+            toast.promise(request, {
+              loading: "Загружаем документы...",
+              success: getDocumentUploadSuccessMessage,
+              error: (error) =>
+                getNotebookErrorMessage(
+                  error,
+                  "Не удалось загрузить документы",
+                ),
             });
+
+            await request;
           }}
           onValueChange={setDocumentFiles}
           title="Документы и таблицы"
@@ -244,12 +325,32 @@ export function NotebookSourcesPage() {
           label="Обработка аудио и видео"
           onFileReject={handleFileReject}
           onUpload={async (files, options) => {
-            await transcribeMutation.mutateAsync({
-              files,
-              onError: options.onError,
-              onProgress: options.onProgress,
-              onSuccess: options.onSuccess,
+            const request = transcribeMutation
+              .mutateAsync({
+                files,
+                onError: options.onError,
+                onProgress: options.onProgress,
+                onSuccess: options.onSuccess,
+              })
+              .then((result) => {
+                if (result.successCount === 0) {
+                  throw new Error("Не удалось обработать аудио или видео");
+                }
+
+                return result;
+              });
+
+            toast.promise(request, {
+              loading: "Обрабатываем аудио и видео...",
+              success: getMediaUploadSuccessMessage,
+              error: (error) =>
+                getNotebookErrorMessage(
+                  error,
+                  "Не удалось обработать аудио или видео",
+                ),
             });
+
+            await request;
           }}
           onValueChange={setMediaFiles}
           title="Аудио и видео"
@@ -259,7 +360,16 @@ export function NotebookSourcesPage() {
       <NotebookSourceList
         isRemoving={removeSourceMutation.isPending}
         onRemove={(sourceId) => void removeSourceMutation.mutateAsync(sourceId)}
+        onSelectionChange={handleSourceSelectionChange}
+        selectedSourceIds={activeSelectedSourceIds}
         sources={notebook?.sources ?? []}
+      />
+
+      <NotebookSourceComparePanel
+        isPending={compareSourcesMutation.isPending}
+        onCompare={() => void handleCompareSources()}
+        result={compareResult}
+        selectedCount={activeSelectedSourceIds.length}
       />
     </div>
   );

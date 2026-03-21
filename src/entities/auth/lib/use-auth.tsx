@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { authOptions } from "../api/auth.options";
 import { authKeys } from "../api/auth.keys";
 import type { User } from "../model/user";
+import { getAccessToken } from "@/shared/lib/access-token";
 
 type AuthState =
   | { user: null; status: "PENDING" }
@@ -26,8 +27,22 @@ function useAuth(): AuthData {
   }, [authQuery.error, queryClient]);
 
   const utils: AuthUtils = {
-    ensureData: () => {
-      return queryClient.ensureQueryData(authOptions.me());
+    ensureData: async () => {
+      if (!getAccessToken()) {
+        return null;
+      }
+
+      const cachedUser = queryClient.getQueryData<User | null>(authKeys.me());
+
+      if (cachedUser) {
+        return cachedUser;
+      }
+
+      return queryClient.fetchQuery({
+        ...authOptions.me(),
+        queryKey: authKeys.me(),
+        staleTime: 0,
+      });
     },
   };
 

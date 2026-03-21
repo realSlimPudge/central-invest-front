@@ -186,8 +186,8 @@ export function NotebookSectionMenu({
                 className={cn(
                   navigationMenuTriggerStyle(),
                   compact
-                    ? "h-10 rounded-full border border-border bg-card px-4 text-sm text-foreground hover:bg-muted focus:bg-muted data-[open]:bg-muted"
-                    : "h-11 rounded-xl border border-border bg-card px-4 text-foreground hover:bg-muted focus:bg-muted data-[open]:bg-muted",
+                    ? "h-8 rounded-full border border-border bg-card px-4 text-sm text-foreground hover:bg-muted focus:bg-muted data-[open]:bg-muted"
+                    : "h-9 rounded-xl border border-border bg-card px-4 text-foreground hover:bg-muted focus:bg-muted data-[open]:bg-muted",
                   sectionActive && "border-primary bg-muted text-foreground",
                 )}
               >

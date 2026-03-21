@@ -21,6 +21,7 @@ import type {
   NotebookQuestionsBody,
   NotebookSearchBody,
   NotebookSearchResult,
+  NotebookSourceCompareBody,
   NotebookSummaryBody,
   PodcastResponse,
   UpdateNotebookBody,
@@ -156,10 +157,16 @@ export const notebookApi = {
       path: "notebooks/search",
       body,
     }),
-  compare: (body: NotebookCompareBody) =>
+  compareNotebooks: (body: NotebookCompareBody) =>
     apiClient.request<NotebookCompareResult>({
       method: "POST",
       path: "notebooks/compare",
+      body,
+    }),
+  compareSources: (notebookId: string, body: NotebookSourceCompareBody) =>
+    apiClient.request<NotebookCompareResult>({
+      method: "POST",
+      path: `notebooks/${notebookId}/sources/compare`,
       body,
     }),
   async streamChat(

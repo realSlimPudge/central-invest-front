@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from "@/shared/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import { Lock, LockOpen, PlusCircle, User } from "lucide-react";
+import { PlusCircle, User } from "lucide-react";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { notebookOptions } from "@/entities/notebook/api/notebook.options";
@@ -29,7 +29,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
-      <SidebarHeader className="h-18 flex-row items-center justify-between gap-2 border-b px-2 py-2 group-data-[collapsible=icon]:px-1.5 group-data-[collapsible=icon]:justify-center">
+      <SidebarHeader className="h-13 flex-row items-center justify-between gap-2 border-b px-2 py-2 group-data-[collapsible=icon]:px-1.5 group-data-[collapsible=icon]:justify-center">
         <div className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:hidden">
           <span className="font-semibold truncate ">CentralAI</span>
         </div>
@@ -86,7 +86,6 @@ export function AppSidebar() {
                         "transition-all duration-300 text-muted-foreground",
                       )}
                     >
-                      {notebook.contour === "closed" ? <Lock /> : <LockOpen />}
                       <span className="text-md">{notebook.title}</span>
                     </Link>
                   </SidebarMenuButton>

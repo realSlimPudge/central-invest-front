@@ -243,7 +243,11 @@ export type NotebookFlashcardsCheckResult = {
 };
 
 export type NotebookCompareBody = {
-  notebook_ids: [string, string];
+  notebook_ids?: [string, string] | string[];
+};
+
+export type NotebookSourceCompareBody = {
+  source_ids: [string, string] | string[];
 };
 
 export type NotebookSearchBody = {
@@ -271,6 +275,8 @@ export type NotebookCompareResult = {
   risk_level?: string;
   label_a?: string;
   label_b?: string;
+  labels?: string[];
+  compared_sources?: string[];
   [key: string]: unknown;
 };
 
