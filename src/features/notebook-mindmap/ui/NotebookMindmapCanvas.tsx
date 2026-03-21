@@ -37,8 +37,8 @@ function TopicNode({ data, selected }: NodeProps<MindmapFlowNode>) {
           : "hover:border-primary/20 hover:shadow-md",
       )}
     >
-      <Handle type="target" position={Position.Left} className="opacity-0" />
-      <Handle type="source" position={Position.Right} className="opacity-0" />
+      <Handle type="target" position={Position.Top} className="opacity-0" />
+      <Handle type="source" position={Position.Bottom} className="opacity-0" />
 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-2">
@@ -91,12 +91,12 @@ export function NotebookMindmapCanvas({
   );
 
   return (
-    <div className="notebook-mindmap-flow h-[min(72vh,820px)] min-h-[560px] w-full overflow-hidden rounded-[28px] border border-border bg-card">
+    <div className="notebook-mindmap-flow h-[68dvh] min-h-[420px] w-full overflow-hidden rounded-[28px] border border-border bg-card sm:h-[min(72vh,820px)] sm:min-h-[560px]">
       <ReactFlow
         fitView
         fitViewOptions={{
-          padding: 0.22,
-          maxZoom: 1.05,
+          padding: 0.18,
+          maxZoom: 1,
         }}
         minZoom={0.35}
         maxZoom={1.5}
@@ -119,7 +119,7 @@ export function NotebookMindmapCanvas({
         <Controls position="bottom-right" showInteractive={false} />
       </ReactFlow>
 
-      <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-full border border-border bg-card/95 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
+      <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-full border border-border bg-card/95 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur sm:left-4 sm:top-4">
         <span className="inline-flex items-center gap-2">
           <ScanSearch className="size-3.5" />
           Двигай холст и выбирай узлы

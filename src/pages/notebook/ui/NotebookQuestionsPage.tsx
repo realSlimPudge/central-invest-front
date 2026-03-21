@@ -130,12 +130,12 @@ export function NotebookQuestionsPage() {
       />
 
       {items.length > 0 ? (
-        <div className="gap-6 flex">
-          <div className="space-y-3 max-h-150 overflow-auto">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-6">
+          <div className="order-2 space-y-3 xl:order-1 xl:max-h-[42rem] xl:overflow-auto xl:pr-1">
             {items.map((item, index) => (
               <div
                 key={`${item.question}-${index}`}
-                className="rounded-3xl border border-border bg-card px-5 py-5"
+                className="rounded-3xl border border-border bg-card px-4 py-4 sm:px-5 sm:py-5"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span
@@ -152,14 +152,14 @@ export function NotebookQuestionsPage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-4 text-base leading-7 text-foreground">
+                <p className="mt-4 text-sm leading-7 text-foreground sm:text-base">
                   {item.question}
                 </p>
               </div>
             ))}
           </div>
 
-          <Card className="max-w-100">
+          <Card className="order-1 xl:order-2 xl:sticky xl:top-6 xl:self-start">
             <CardHeader>
               <CardTitle className="text-xl text-[var(--text-h)]">
                 Вывод

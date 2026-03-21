@@ -7,10 +7,10 @@ import type {
 } from "@/entities/notebook/api/dto/notebook.types";
 
 const DEFAULT_ROOT_TITLE = "Карта блокнота";
-const X_PADDING = 112;
-const Y_PADDING = 96;
-const HORIZONTAL_SPACING = 360;
-const VERTICAL_SPACING = 152;
+const X_PADDING = 132;
+const Y_PADDING = 88;
+const HORIZONTAL_SIBLING_SPACING = 320;
+const VERTICAL_DEPTH_SPACING = 220;
 const TITLE_KEYS = ["title", "name", "label", "topic", "text"] as const;
 const CHILD_KEYS = [
   "children",
@@ -158,7 +158,9 @@ export function normalizeMindmap(value: Notebook["mindmap"]) {
 export function buildMindmapGraph(rootNode: MindmapNode): MindmapGraph {
   const root = hierarchy(rootNode, (node: MindmapNode) => node.children ?? []);
   const layout = tree<MindmapNode>()
-    .nodeSize([VERTICAL_SPACING, HORIZONTAL_SPACING])
+    // D3 tree returns breadth on x and depth on y.
+    // Here depth stays on the vertical axis, so the map grows top-down from the root.
+    .nodeSize([HORIZONTAL_SIBLING_SPACING, VERTICAL_DEPTH_SPACING])
     .separation(
       (left: HierarchyNode<MindmapNode>, right: HierarchyNode<MindmapNode>) =>
         left.parent === right.parent ? 1 : 1.15,
@@ -215,12 +217,12 @@ export function buildMindmapGraph(rootNode: MindmapNode): MindmapGraph {
       id,
       type: "topic",
       position: {
-        x: layoutY + X_PADDING,
-        y: layoutX - minX + Y_PADDING,
+        x: layoutX - minX + X_PADDING,
+        y: layoutY + Y_PADDING,
       },
       data,
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
+      sourcePosition: Position.Bottom,
+      targetPosition: Position.Top,
       draggable: false,
       selectable: true,
     });

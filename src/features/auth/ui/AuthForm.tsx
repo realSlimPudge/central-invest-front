@@ -104,7 +104,7 @@ export function AuthForm() {
           </CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
-        <CardContent className="px-0 py-5 sm:py-6">
+        <CardContent className="px-1 sm:px-4 py-5 sm:py-6">
           <form
             id="login-form"
             onSubmit={(e) => {
@@ -196,7 +196,7 @@ export function AuthForm() {
               : error.message}
           </p>
         )}
-        <CardFooter className="px-0">
+        <CardFooter className="px-1 sm:px-4 ">
           <Button
             variant="default"
             disabled={isLoading}
