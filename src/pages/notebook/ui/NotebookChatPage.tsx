@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, Bot, StopCircle, Trash2, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import {
+  ArrowUpRight,
+  Bot,
+  ChevronDown,
+  StopCircle,
+  Trash2,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
@@ -10,6 +18,7 @@ import {
   type ChatMessage,
 } from "@/features/notebook-chat/model/chat-history";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
+import { summaryMarkdownComponents } from "@/features/notebook-summary/config/markdonw";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
 import {
   getContourLabel,
@@ -26,6 +35,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/shared/components/ui/collapsible";
 import { cn } from "@/shared/lib/utils";
 import { createMessageId } from "@/shared/lib/createUUID";
 
@@ -34,6 +48,52 @@ const starterPrompts = [
   "Какие риски и спорные моменты видны в документах?",
   "Сравни главные условия и ограничения, которые встречаются в источниках.",
 ];
+
+function MessageSources({
+  messageId,
+  sources,
+}: {
+  messageId: string;
+  sources: string[];
+}) {
+  return (
+    <Collapsible className="mt-4" defaultOpen={false}>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            Опора на источники
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Найдено фрагментов: {sources.length}
+          </p>
+        </div>
+
+        <CollapsibleTrigger asChild>
+          <Button
+            className="group h-8 rounded-full px-3 text-xs"
+            size="sm"
+            type="button"
+            variant="ghost"
+          >
+            Показать
+            <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" />
+          </Button>
+        </CollapsibleTrigger>
+      </div>
+
+      <CollapsibleContent className="mt-3 space-y-2">
+        {sources.slice(0, 3).map((source, index) => (
+          <div
+            key={`${messageId}-${index}`}
+            className="rounded-2xl border border-border bg-card px-3 py-3 text-sm leading-6 text-muted-foreground"
+          >
+            {source}
+          </div>
+        ))}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
 
 export function NotebookChatPage() {
   const { notebookId, notebook } = useNotebookRoute();
@@ -236,33 +296,31 @@ export function NotebookChatPage() {
                       {message.role === "user" ? "Ты" : "Ассистент"}
                     </div>
 
-                    <div className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground">
-                      {message.content ||
-                        (message.role === "assistant" && isStreaming
-                          ? "Собираю ответ..."
-                          : "")}
-                    </div>
+                    {message.role === "assistant" ? (
+                      <div className="mt-3 space-y-3">
+                        {message.content ? (
+                          <ReactMarkdown components={summaryMarkdownComponents}>
+                            {message.content}
+                          </ReactMarkdown>
+                        ) : isStreaming ? (
+                          <div className="text-sm leading-7 text-foreground">
+                            Собираю ответ...
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <div className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground">
+                        {message.content}
+                      </div>
+                    )}
 
                     {message.role === "assistant" &&
-                      message.sources.length > 0 && (
-                        <div className="mt-4 space-y-2">
-                          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                            Опора на источники
-                          </p>
-                          <div className="space-y-2">
-                            {message.sources
-                              .slice(0, 3)
-                              .map((source, index) => (
-                                <div
-                                  key={`${message.id}-${index}`}
-                                  className="rounded-2xl border border-border bg-card px-3 py-3 text-sm leading-6 text-muted-foreground"
-                                >
-                                  {source}
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      )}
+                    message.sources.length > 0 ? (
+                      <MessageSources
+                        messageId={message.id}
+                        sources={message.sources}
+                      />
+                    ) : null}
                   </div>
                 ))
               ) : chatHistoryQuery.isPending ? (
