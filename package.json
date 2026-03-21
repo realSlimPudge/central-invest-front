@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ebay/nice-modal-react": "^1.2.13",
     "@fontsource-variable/geist": "^5.2.8",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-form": "^1.28.5",

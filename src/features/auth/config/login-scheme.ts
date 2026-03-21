@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const formSchema = z.object({
+export const authScheme = z.object({
   username: z
     .string()
     .min(5, "Логин минимум 5 символов")

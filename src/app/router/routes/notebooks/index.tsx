@@ -1,6 +1,6 @@
-import { DashboardPage } from "@/pages/dashboard/ui/Dashboard";
+import { CreateNotebookPage } from "@/pages/notebook/ui/CreateNotebook";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/notebooks/")({
-  component: DashboardPage,
+  component: CreateNotebookPage,
 });

@@ -9,7 +9,7 @@ import type {
   NotebookSummaryBody,
   PodcastResponse,
   UpdateNotebookBody,
-} from "./notebook.types";
+} from "./dto/notebook.types";
 
 export const notebookApi = {
   list: () => apiClient.request<Notebook[]>({ path: "notebooks" }),

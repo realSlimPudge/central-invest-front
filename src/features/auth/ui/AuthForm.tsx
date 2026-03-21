@@ -16,12 +16,16 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Button } from "@/shared/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import { formSchema } from "../config/login-scheme";
+import { authScheme } from "../config/login-scheme";
 import { useLoginMutation } from "../lib/useLogin";
 import { useRegisterMutation } from "../lib/useRegister";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/motion-tabs";
 
 type AuthTab = "login" | "register";
 
@@ -47,7 +51,7 @@ export function AuthForm() {
       password: "",
     },
     validators: {
-      onChange: formSchema,
+      onChange: authScheme,
     },
     onSubmit: async ({ value }) => {
       if (activeTab === "login") {
@@ -65,7 +69,7 @@ export function AuthForm() {
   const title = activeTab === "login" ? "Вход в аккаунт" : "Создание аккаунта";
   const description =
     activeTab === "login"
-      ? "Войдите в аккаунт для доступа к функциям"
+      ? "Войдите аккаунт, чтобы начать работу с платформой"
       : "Создайте аккаунт, чтобы начать работу с платформой";
   const submitLabel = activeTab === "login" ? "Войти" : "Зарегистрироваться";
   const passwordAutocomplete =
@@ -78,73 +82,48 @@ export function AuthForm() {
   };
 
   return (
-    <Card className="w-full bg-transparent max-w-sm border-none p-0 shadow-none">
-      <CardHeader className="text-center pt-4">
-        <Tabs
-          value={activeTab}
-          onValueChange={handleTabChange}
-          className="w-full gap-6"
-        >
-          <TabsList className="grid h-11 w-full grid-cols-2 rounded-xl bg-muted p-1">
-            <TabsTrigger value="login" className="rounded-lg font-semibold">
-              Вход
-            </TabsTrigger>
-            <TabsTrigger value="register" className="rounded-lg font-semibold">
-              Регистрация
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <CardTitle className="text-2xl font-bold">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form
-          id="login-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
-        >
-          <FieldGroup className="gap-y-4">
-            <form.Field
-              name="username"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name} className="font-bold">
-                      Логин
-                    </FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      placeholder="Введите логин"
-                      autoComplete="username"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                );
-              }}
-            />
-            <form.Field
-              name="password"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name} className="font-bold">
-                      Пароль
-                    </FieldLabel>
-                    <div className="relative">
+    <div className="flex flex-col gap-y-2 w-full  max-w-sm ">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="w-full gap-6"
+      >
+        <TabsList className="grid h-11 w-full grid-cols-2 rounded-xl bg-muted p-1">
+          <TabsTrigger value="login" className="rounded-lg font-semibold">
+            Вход
+          </TabsTrigger>
+          <TabsTrigger value="register" className="rounded-lg font-semibold">
+            Регистрация
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <Card className="w-full bg-transparent max-w-sm border-none p-0 shadow-none">
+        <CardHeader className="text-center pt-4">
+          <CardTitle className="sm:text-2xl text-xl font-bold">
+            {title}
+          </CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent className="py-6">
+          <form
+            id="login-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
+          >
+            <FieldGroup className="gap-y-4">
+              <form.Field
+                name="username"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name} className="font-bold">
+                        Логин
+                      </FieldLabel>
                       <Input
                         id={field.name}
                         name={field.name}
@@ -152,54 +131,83 @@ export function AuthForm() {
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
-                        placeholder="Введите пароль"
-                        autoComplete={passwordAutocomplete}
-                        type={showPassword ? "text" : "password"}
+                        placeholder="Введите логин"
+                        autoComplete="username"
                       />
-                      <Button
-                        className="absolute translate-y-[-50%] top-[50%]  right-2 px-3 size-7 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                        size="icon"
-                        type="button"
-                        variant="ghost"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                );
-              }}
-            />
-          </FieldGroup>
-        </form>
-      </CardContent>
-      {error && (
-        <p className="text-destructive text-start ml-4">
-          {activeTab === "login"
-            ? error.message === "UNAUTHORIZED"
-              ? "Неверный логин или пароль"
-              : error.message
-            : error.message}
-        </p>
-      )}
-      <CardFooter>
-        <Button
-          variant="default"
-          disabled={isLoading}
-          className="w-full font-bold"
-          type="submit"
-          form="login-form"
-        >
-          {isLoading ? <Spinner /> : submitLabel}
-        </Button>
-      </CardFooter>
-    </Card>
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+              <form.Field
+                name="password"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name} className="font-bold">
+                        Пароль
+                      </FieldLabel>
+                      <div className="relative">
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Введите пароль"
+                          autoComplete={passwordAutocomplete}
+                          type={showPassword ? "text" : "password"}
+                        />
+                        <Button
+                          className="absolute translate-y-[-50%] top-[50%]  right-2 px-3 size-7 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                      </div>
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+            </FieldGroup>
+          </form>
+        </CardContent>
+        {error && (
+          <p className="text-destructive text-start ml-4">
+            {activeTab === "login"
+              ? error.message === "UNAUTHORIZED"
+                ? "Неверный логин или пароль"
+                : error.message
+              : error.message}
+          </p>
+        )}
+        <CardFooter>
+          <Button
+            variant="default"
+            disabled={isLoading}
+            className="w-full font-bold"
+            type="submit"
+            form="login-form"
+          >
+            {isLoading ? <Spinner /> : submitLabel}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

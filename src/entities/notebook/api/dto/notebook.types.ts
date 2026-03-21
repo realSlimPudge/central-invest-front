@@ -5,11 +5,42 @@ export type NotebookSource = {
   created_at: string;
 };
 
+export type MindmapNode = {
+  title: string;
+  children: MindmapNode[];
+};
+
+export type NotebookFlashcard =
+  | string
+  | {
+      question?: string;
+      answer?: string;
+      front?: string;
+      back?: string;
+      term?: string;
+      definition?: string;
+      [key: string]: unknown;
+    };
+
+export type PodcastScriptLine =
+  | string
+  | {
+      speaker?: string;
+      text?: string;
+      content?: string;
+      [key: string]: unknown;
+    };
+
 export type Notebook = {
   id: string;
   title: string;
   created_at: string;
   sources: NotebookSource[];
+  summary?: string | null;
+  mindmap?: MindmapNode | Record<string, unknown> | null;
+  flashcards?: NotebookFlashcard[] | null;
+  podcast_url?: string | null;
+  podcast_script?: PodcastScriptLine[] | null;
 };
 
 export type CreateNotebookBody = {
@@ -40,11 +71,6 @@ export type NotebookFlashcardsBody = {
 
 export type NotebookPodcastBody = {
   tone?: string;
-};
-
-export type MindmapNode = {
-  title: string;
-  children: MindmapNode[];
 };
 
 export type PodcastResponse = {

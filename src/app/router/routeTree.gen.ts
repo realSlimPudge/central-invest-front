@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as NotebooksRouteRouteImport } from './routes/notebooks/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks/index'
+import { Route as NotebooksIdRouteImport } from './routes/notebooks/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -34,16 +35,23 @@ const NotebooksIndexRoute = NotebooksIndexRouteImport.update({
   path: '/',
   getParentRoute: () => NotebooksRouteRoute,
 } as any)
+const NotebooksIdRoute = NotebooksIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => NotebooksRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/notebooks': typeof NotebooksRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks': typeof NotebooksIndexRoute
 }
 export interface FileRoutesById {
@@ -51,14 +59,21 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/notebooks': typeof NotebooksRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks/': typeof NotebooksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/notebooks' | '/login' | '/notebooks/'
+  fullPaths: '/' | '/notebooks' | '/login' | '/notebooks/$id' | '/notebooks/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/notebooks'
-  id: '__root__' | '/' | '/notebooks' | '/login' | '/notebooks/'
+  to: '/' | '/login' | '/notebooks/$id' | '/notebooks'
+  id:
+    | '__root__'
+    | '/'
+    | '/notebooks'
+    | '/login'
+    | '/notebooks/$id'
+    | '/notebooks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,14 +112,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotebooksIndexRouteImport
       parentRoute: typeof NotebooksRouteRoute
     }
+    '/notebooks/$id': {
+      id: '/notebooks/$id'
+      path: '/$id'
+      fullPath: '/notebooks/$id'
+      preLoaderRoute: typeof NotebooksIdRouteImport
+      parentRoute: typeof NotebooksRouteRoute
+    }
   }
 }
 
 interface NotebooksRouteRouteChildren {
+  NotebooksIdRoute: typeof NotebooksIdRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
 const NotebooksRouteRouteChildren: NotebooksRouteRouteChildren = {
+  NotebooksIdRoute: NotebooksIdRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
 
