@@ -27,6 +27,7 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
+import { createMessageId } from "@/shared/lib/createUUID";
 
 const starterPrompts = [
   "Сделай краткий обзор ключевых идей в материалах.",
@@ -88,12 +89,12 @@ export function NotebookChatPage() {
     }));
 
     const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: createMessageId(),
       role: "user",
       content: trimmedQuery,
       sources: [],
     };
-    const assistantMessageId = crypto.randomUUID();
+    const assistantMessageId = createMessageId();
 
     setSessionMessages([
       ...currentMessages,
