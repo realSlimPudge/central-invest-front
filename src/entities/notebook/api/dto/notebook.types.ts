@@ -216,6 +216,10 @@ export type NotebookPodcastBody = {
   tone?: string;
 };
 
+export type NotebookSourceUrlBody = {
+  url: string;
+};
+
 export type NotebookContourBody = {
   contour: NotebookContour;
 };

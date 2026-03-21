@@ -22,6 +22,7 @@ import type {
   NotebookSearchBody,
   NotebookSearchResult,
   NotebookSourceCompareBody,
+  NotebookSourceUrlBody,
   NotebookSummaryBody,
   PodcastResponse,
   UpdateNotebookBody,
@@ -74,6 +75,12 @@ export const notebookApi = {
       body: formData,
     });
   },
+  uploadSourceUrl: (notebookId: string, body: NotebookSourceUrlBody) =>
+    apiClient.request<Record<string, unknown>>({
+      method: "POST",
+      path: `notebooks/${notebookId}/sources/url`,
+      body,
+    }),
   removeSource: (notebookId: string, sourceId: string) =>
     apiClient.request<void>({
       method: "DELETE",

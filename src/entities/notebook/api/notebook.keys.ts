@@ -5,6 +5,7 @@ export const notebookKeys = {
     [...notebookKeys.all, "detail", notebookId] as const,
   create: () => [...notebookKeys.all, "create"] as const,
   upload: () => [...notebookKeys.all, "upload"] as const,
+  uploadUrl: () => [...notebookKeys.all, "upload-url"] as const,
   removeSource: () => [...notebookKeys.all, "remove-source"] as const,
   summary: () => [...notebookKeys.all, "summary"] as const,
   mindmap: () => [...notebookKeys.all, "mindmap"] as const,

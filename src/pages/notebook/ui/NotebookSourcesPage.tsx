@@ -9,6 +9,7 @@ import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import { NotebookSourceComparePanel } from "@/features/notebook-sources/ui/NotebookSourceComparePanel";
 import { NotebookSourceList } from "@/features/notebook-sources/ui/NotebookSourceList";
 import { NotebookSourceUploadCard } from "@/features/notebook-sources/ui/NotebookSourceUploadCard";
+import { NotebookSourceUrlCard } from "@/features/notebook-sources/ui/NotebookSourceUrlCard";
 import {
   getNotebookErrorMessage,
   runNotebookRequestWithToast,
@@ -80,6 +81,7 @@ export function NotebookSourcesPage() {
   const { notebookId, notebook, notebookQuery } = useNotebookRoute();
   const [documentFiles, setDocumentFiles] = useState<File[]>([]);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [sourceUrl, setSourceUrl] = useState("");
   const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([]);
   const [compareState, setCompareState] = useState<{
     selectionKey: string;
@@ -208,6 +210,16 @@ export function NotebookSourcesPage() {
     },
   });
 
+  const uploadSourceUrlMutation = useMutation({
+    mutationKey: notebookKeys.uploadUrl(),
+    mutationFn: (url: string) =>
+      notebookApi.uploadSourceUrl(notebookId, { url }),
+    onSuccess: async () => {
+      setSourceUrl("");
+      await invalidateNotebook();
+    },
+  });
+
   const compareSourcesMutation = useMutation({
     mutationKey: notebookKeys.compare(),
     mutationFn: () => {
@@ -262,6 +274,28 @@ export function NotebookSourcesPage() {
     });
   };
 
+  const handleAddSourceUrl = async () => {
+    const trimmedUrl = sourceUrl.trim();
+
+    if (!trimmedUrl) {
+      return;
+    }
+
+    try {
+      new URL(trimmedUrl);
+    } catch {
+      toast.error("Введите корректную ссылку");
+      return;
+    }
+
+    await runNotebookRequestWithToast({
+      request: uploadSourceUrlMutation.mutateAsync(trimmedUrl),
+      loading: "Добавляем источник по ссылке...",
+      success: "Источник добавлен",
+      error: "Не удалось добавить источник по ссылке",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <NotebookModuleHeader
@@ -269,7 +303,7 @@ export function NotebookSourcesPage() {
         title="Источники"
       />
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid gap-6 xl:grid-cols-3">
         <NotebookSourceUploadCard
           accept={documentAccept}
           description="Загружай PDF, DOCX, TXT, CSV и XLSX. После загрузки документы разбиваются на фрагменты и сразу становятся доступными для поиска и генерации артефактов."
@@ -354,6 +388,16 @@ export function NotebookSourcesPage() {
           }}
           onValueChange={setMediaFiles}
           title="Аудио и видео"
+        />
+
+        <NotebookSourceUrlCard
+          disabled={
+            uploadSourceUrlMutation.isPending || notebookQuery.isPending
+          }
+          isPending={uploadSourceUrlMutation.isPending}
+          onSubmit={() => void handleAddSourceUrl()}
+          onValueChange={setSourceUrl}
+          value={sourceUrl}
         />
       </div>
 
