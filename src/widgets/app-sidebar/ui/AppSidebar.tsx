@@ -18,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { notebookOptions } from "@/entities/notebook/api/notebook.options";
 import { cn } from "@/shared/lib/utils";
 import { useAuth } from "@/entities/auth/lib/use-auth";
+import { AnimatedThemeToggler } from "@/shared/components/ui/animated-theme-toggler";
 
 export function AppSidebar() {
   const { data: notebooks, isLoading } = useQuery({
@@ -35,7 +36,10 @@ export function AppSidebar() {
           </div>
           <span className="font-semibold truncate ">CentralAI</span>
         </div>
-        <div>
+        <div className="flex gap-x-2 items-center">
+          <div className="group-data-[collapsible=icon]:hidden">
+            <AnimatedThemeToggler />
+          </div>
           <SidebarTrigger />
         </div>
       </SidebarHeader>
