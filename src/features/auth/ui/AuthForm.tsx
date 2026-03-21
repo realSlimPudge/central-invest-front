@@ -15,18 +15,13 @@ import {
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { useMutation } from "@tanstack/react-query";
-import Cookies from "js-cookie";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
-import { authOptions } from "@/entities/auth/api/auth.options";
-import { ACCESS_TOKEN } from "@/shared/constants/auth-token";
 import { formSchema } from "../config/login-scheme";
-import { queryClient } from "@/shared/lib/queryClient";
-import { authKeys } from "@/entities/auth/api/auth.keys";
+import { useLoginMutation } from "../lib/useLogin";
+import { useRegisterMutation } from "../lib/useRegister";
 
 type AuthTab = "login" | "register";
 
@@ -34,32 +29,17 @@ export function AuthForm() {
   const [activeTab, setActiveTab] = useState<AuthTab>("login");
   const [showPassword, setShowPassword] = useState(false);
 
-  const loginMutation = useMutation({
-    ...authOptions.login(),
-    onSuccess: (data) => {
-      queryClient.fetchQuery({ queryKey: authKeys.me() });
-      Cookies.set(ACCESS_TOKEN, data.access_token);
-      toast.success("Вы успешно вошли в аккаунт", { position: "top-center" });
-    },
-    onError: () => {
-      toast.error("Неверные данные", { position: "top-center" });
-    },
-  });
+  const {
+    isLoading: loginLoading,
+    login,
+    error: loginError,
+  } = useLoginMutation();
 
-  const registerMutation = useMutation({
-    ...authOptions.register(),
-    onSuccess: (_, body) => {
-      loginMutation.mutate(body);
-      toast.success("Аккаунт создан. Теперь войдите в систему", {
-        position: "top-center",
-      });
-      setActiveTab("login");
-      setShowPassword(false);
-    },
-    onError: () => {
-      toast.error("Не удалось создать аккаунт", { position: "top-center" });
-    },
-  });
+  const {
+    register,
+    isLoading: registerLoading,
+    error: registerError,
+  } = useRegisterMutation();
 
   const form = useForm({
     defaultValues: {
@@ -71,17 +51,16 @@ export function AuthForm() {
     },
     onSubmit: async ({ value }) => {
       if (activeTab === "login") {
-        await loginMutation.mutateAsync(value);
+        await login(value);
         return;
       }
 
-      await registerMutation.mutateAsync(value);
+      await register(value);
     },
   });
 
-  const isLoading = loginMutation.isPending || registerMutation.isPending;
-  const error =
-    activeTab === "login" ? loginMutation.error : registerMutation.error;
+  const isLoading = loginLoading || registerLoading;
+  const error = activeTab === "login" ? loginError : registerError;
 
   const title = activeTab === "login" ? "Вход в аккаунт" : "Создание аккаунта";
   const description =
@@ -96,8 +75,6 @@ export function AuthForm() {
     const nextTab = value as AuthTab;
     setActiveTab(nextTab);
     setShowPassword(false);
-    loginMutation.reset();
-    registerMutation.reset();
   };
 
   return (
