@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Blocks } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
@@ -10,7 +9,7 @@ import type {
   NotebookQuestionItem,
 } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
-import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { runNotebookRequestWithToast } from "@/features/notebook-workspace/lib/notebook-ui";
 import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { questionContextOptions } from "@/features/notebook-workspace/model/notebook-workspace";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
@@ -72,16 +71,20 @@ export function NotebookQuestionsPage() {
     mutationKey: notebookKeys.questions(),
     mutationFn: () =>
       notebookApi.questions(notebookId, { context: contextValue }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: notebookKeys.detail(notebookId),
-      });
-      toast.success("Список вопросов обновлен");
-    },
-    onError: (error) => {
-      toast.error(getNotebookErrorMessage(error, "Не удалось собрать вопросы"));
-    },
   });
+
+  const handleGenerate = async () =>
+    runNotebookRequestWithToast({
+      request: questionsMutation.mutateAsync().then(async (result) => {
+        await queryClient.invalidateQueries({
+          queryKey: notebookKeys.detail(notebookId),
+        });
+        return result;
+      }),
+      loading: "Собираем вопросы...",
+      success: "Список вопросов обновлен",
+      error: "Не удалось собрать вопросы",
+    });
 
   if (!moduleAvailability.enabled) {
     return (
@@ -114,7 +117,7 @@ export function NotebookQuestionsPage() {
             </Select>
             <Button
               disabled={questionsMutation.isPending}
-              onClick={() => void questionsMutation.mutateAsync()}
+              onClick={() => void handleGenerate()}
               type="button"
             >
               <Blocks className="size-4" />
@@ -127,46 +130,36 @@ export function NotebookQuestionsPage() {
       />
 
       {items.length > 0 ? (
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <Card className="ring-1 ring-border/80">
-            <CardHeader>
-              <CardTitle className="text-xl text-[var(--text-h)]">
-                Список вопросов
-              </CardTitle>
-              <CardDescription>
-                Что стоит запросить или уточнить дополнительно.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {items.map((item, index) => (
-                <div
-                  key={`${item.question}-${index}`}
-                  className="rounded-3xl border border-border bg-card px-5 py-5"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={cn(
-                        "rounded-full border px-3 py-1 text-xs",
-                        getPriorityTone(item.priority),
-                      )}
-                    >
-                      {item.priority || "low"}
-                    </span>
-                    {item.category && (
-                      <span className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
-                        {item.category}
-                      </span>
+        <div className="gap-6 flex">
+          <div className="space-y-3 max-h-150 overflow-auto">
+            {items.map((item, index) => (
+              <div
+                key={`${item.question}-${index}`}
+                className="rounded-3xl border border-border bg-card px-5 py-5"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={cn(
+                      "rounded-full border px-3 py-1 text-xs",
+                      getPriorityTone(item.priority),
                     )}
-                  </div>
-                  <p className="mt-4 text-base leading-7 text-foreground">
-                    {item.question}
-                  </p>
+                  >
+                    {item.priority || "low"}
+                  </span>
+                  {item.category && (
+                    <span className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
+                      {item.category}
+                    </span>
+                  )}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
+                <p className="mt-4 text-base leading-7 text-foreground">
+                  {item.question}
+                </p>
+              </div>
+            ))}
+          </div>
 
-          <Card className="ring-1 ring-border/80">
+          <Card className="max-w-100">
             <CardHeader>
               <CardTitle className="text-xl text-[var(--text-h)]">
                 Вывод

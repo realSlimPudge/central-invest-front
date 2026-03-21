@@ -123,7 +123,7 @@ export function NotebookPodcastTab({
       )}
 
       {podcastScript.length > 0 && (
-        <div className="rounded-3xl border border-border bg-card px-6 py-5">
+        <div className="rounded-3xl border border-border bg-card px-6 py-5 h-150 overflow-auto">
           <p className="text-sm font-medium text-muted-foreground">
             Сценарий подкаста
           </p>

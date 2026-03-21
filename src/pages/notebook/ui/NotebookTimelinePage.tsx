@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TimerReset } from "lucide-react";
-import { toast } from "sonner";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
@@ -9,7 +8,7 @@ import type {
   NotebookTimelineEvent,
 } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
-import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { runNotebookRequestWithToast } from "@/features/notebook-workspace/lib/notebook-ui";
 import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
@@ -56,18 +55,20 @@ export function NotebookTimelinePage() {
   const timelineMutation = useMutation({
     mutationKey: notebookKeys.timeline(),
     mutationFn: () => notebookApi.timeline(notebookId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: notebookKeys.detail(notebookId),
-      });
-      toast.success("Таймлайн обновлен");
-    },
-    onError: (error) => {
-      toast.error(
-        getNotebookErrorMessage(error, "Не удалось построить таймлайн"),
-      );
-    },
   });
+
+  const handleGenerate = async () =>
+    runNotebookRequestWithToast({
+      request: timelineMutation.mutateAsync().then(async (result) => {
+        await queryClient.invalidateQueries({
+          queryKey: notebookKeys.detail(notebookId),
+        });
+        return result;
+      }),
+      loading: "Строим таймлайн...",
+      success: "Таймлайн обновлен",
+      error: "Не удалось построить таймлайн",
+    });
 
   if (!moduleAvailability.enabled) {
     return (
@@ -85,7 +86,7 @@ export function NotebookTimelinePage() {
         actions={
           <Button
             disabled={timelineMutation.isPending}
-            onClick={() => void timelineMutation.mutateAsync()}
+            onClick={() => void handleGenerate()}
             type="button"
           >
             <TimerReset className="size-4" />

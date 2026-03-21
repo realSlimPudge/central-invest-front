@@ -1,38 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AudioLines, Trash2, Upload, X } from "lucide-react";
+import { AudioLines, Upload } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
-import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
-import {
-  formatNotebookDate,
-  getNotebookErrorMessage,
-  getSourceStatusLabel,
-  getSourceStatusTone,
-  shouldShowSourceStatusBadge,
-} from "@/features/notebook-workspace/lib/notebook-ui";
+import { NotebookSourceList } from "@/features/notebook-sources/ui/NotebookSourceList";
+import { NotebookSourceUploadCard } from "@/features/notebook-sources/ui/NotebookSourceUploadCard";
+import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
-import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
-  FileUpload,
-  FileUploadDropzone,
-  FileUploadItem,
-  FileUploadItemDelete,
-  FileUploadItemMetadata,
-  FileUploadItemPreview,
-  FileUploadItemProgress,
-  FileUploadList,
-} from "@/shared/components/ui/file-upload";
-import { cn } from "@/shared/lib/utils";
+import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
+import type { FileUploadProps } from "@/shared/components/ui/file-upload";
 
 type UploadMutationVariables = {
   files: File[];
@@ -216,245 +194,73 @@ export function NotebookSourcesPage() {
     },
   });
 
+  const handleFileReject: NonNullable<FileUploadProps["onFileReject"]> = (
+    file,
+    message,
+  ) => {
+    toast.error(`${file.name}: ${message}`);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Card className="ring-1 ring-border/80">
-          <CardHeader>
-            <CardTitle className="text-2xl text-[var(--text-h)]">
-              Документы и таблицы
-            </CardTitle>
-            <CardDescription className="text-base leading-7">
-              Загружай PDF, DOCX, TXT, CSV и XLSX. После загрузки документы
-              разбиваются на фрагменты и сразу становятся доступными для поиска
-              и генерации артефактов.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FileUpload
-              accept={documentAccept}
-              className="w-full"
-              disabled={
-                uploadDocumentsMutation.isPending || notebookQuery.isPending
-              }
-              label="Загрузка документов"
-              multiple
-              onFileReject={(file, message) => {
-                toast.error(`${file.name}: ${message}`);
-              }}
-              onUpload={async (files, options) => {
-                await uploadDocumentsMutation.mutateAsync({
-                  files,
-                  onError: options.onError,
-                  onProgress: options.onProgress,
-                  onSuccess: options.onSuccess,
-                });
-              }}
-              value={documentFiles}
-              onValueChange={setDocumentFiles}
-            >
-              <FileUploadDropzone className="rounded-3xl border-dashed bg-muted/35 px-6 py-10 text-center">
-                <div className="flex flex-col items-center justify-center gap-3">
-                  <Upload className="size-8 text-primary" />
-                  <div className="space-y-1">
-                    <p className="text-base font-semibold text-[var(--text-h)]">
-                      Перетащи документы сюда
-                    </p>
-                    <p className="text-sm leading-6 text-muted-foreground">
-                      Или нажми, чтобы выбрать файлы вручную.
-                    </p>
-                  </div>
-                </div>
-              </FileUploadDropzone>
-              <FileUploadList>
-                {documentFiles.map((file) => (
-                  <FileUploadItem
-                    key={`${file.name}-${file.lastModified}-${file.size}`}
-                    value={file}
-                    className="rounded-2xl border-border bg-card"
-                  >
-                    <FileUploadItemPreview className="rounded-xl border-border bg-muted/50" />
-                    <div className="flex min-w-0 flex-1 flex-col gap-2">
-                      <FileUploadItemMetadata />
-                      <FileUploadItemProgress />
-                    </div>
-                    <FileUploadItemDelete asChild>
-                      <Button
-                        className="size-8 rounded-full"
-                        size="icon"
-                        type="button"
-                        variant="ghost"
-                      >
-                        <X className="size-4 text-muted-foreground" />
-                      </Button>
-                    </FileUploadItemDelete>
-                  </FileUploadItem>
-                ))}
-              </FileUploadList>
-            </FileUpload>
-          </CardContent>
-        </Card>
+      <NotebookModuleHeader
+        description="Добавляй документы, таблицы, аудио и видео. После загрузки материалы становятся основой для всех режимов работы."
+        title="Источники"
+      />
 
-        <Card className="ring-1 ring-border/80">
-          <CardHeader>
-            <CardTitle className="text-2xl text-[var(--text-h)]">
-              Аудио и видео
-            </CardTitle>
-            <CardDescription className="text-base leading-7">
-              Загружай записи и ролики. Система подготовит текстовую версию и
-              добавит ее в блокнот как обычный источник.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FileUpload
-              accept={mediaAccept}
-              className="w-full"
-              disabled={transcribeMutation.isPending || notebookQuery.isPending}
-              label="Обработка аудио и видео"
-              multiple
-              onFileReject={(file, message) => {
-                toast.error(`${file.name}: ${message}`);
-              }}
-              onUpload={async (files, options) => {
-                await transcribeMutation.mutateAsync({
-                  files,
-                  onError: options.onError,
-                  onProgress: options.onProgress,
-                  onSuccess: options.onSuccess,
-                });
-              }}
-              value={mediaFiles}
-              onValueChange={setMediaFiles}
-            >
-              <FileUploadDropzone className="rounded-3xl border-dashed bg-muted/35 px-6 py-10 text-center">
-                <div className="flex flex-col items-center justify-center gap-3">
-                  <AudioLines className="size-8 text-primary" />
-                  <div className="space-y-1">
-                    <p className="text-base font-semibold text-[var(--text-h)]">
-                      Перетащи аудио или видео
-                    </p>
-                    <p className="text-sm leading-6 text-muted-foreground">
-                      MP3, WAV, OGG, MP4, MOV, MKV и другие медиаформаты.
-                    </p>
-                  </div>
-                </div>
-              </FileUploadDropzone>
-              <FileUploadList>
-                {mediaFiles.map((file) => (
-                  <FileUploadItem
-                    key={`${file.name}-${file.lastModified}-${file.size}`}
-                    value={file}
-                    className="rounded-2xl border-border bg-card"
-                  >
-                    <FileUploadItemPreview className="rounded-xl border-border bg-muted/50" />
-                    <div className="flex min-w-0 flex-1 flex-col gap-2">
-                      <FileUploadItemMetadata />
-                      <FileUploadItemProgress />
-                    </div>
-                    <FileUploadItemDelete asChild>
-                      <Button
-                        className="size-8 rounded-full"
-                        size="icon"
-                        type="button"
-                        variant="ghost"
-                      >
-                        <X className="size-4 text-muted-foreground" />
-                      </Button>
-                    </FileUploadItemDelete>
-                  </FileUploadItem>
-                ))}
-              </FileUploadList>
-            </FileUpload>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 xl:grid-cols-2">
+        <NotebookSourceUploadCard
+          accept={documentAccept}
+          description="Загружай PDF, DOCX, TXT, CSV и XLSX. После загрузки документы разбиваются на фрагменты и сразу становятся доступными для поиска и генерации артефактов."
+          disabled={
+            uploadDocumentsMutation.isPending || notebookQuery.isPending
+          }
+          dropzoneDescription="Или нажми, чтобы выбрать файлы вручную."
+          dropzoneTitle="Перетащи документы сюда"
+          files={documentFiles}
+          icon={Upload}
+          label="Загрузка документов"
+          onFileReject={handleFileReject}
+          onUpload={async (files, options) => {
+            await uploadDocumentsMutation.mutateAsync({
+              files,
+              onError: options.onError,
+              onProgress: options.onProgress,
+              onSuccess: options.onSuccess,
+            });
+          }}
+          onValueChange={setDocumentFiles}
+          title="Документы и таблицы"
+        />
+
+        <NotebookSourceUploadCard
+          accept={mediaAccept}
+          description="Загружай записи и ролики. Система подготовит текстовую версию и добавит ее в блокнот как обычный источник."
+          disabled={transcribeMutation.isPending || notebookQuery.isPending}
+          dropzoneDescription="MP3, WAV, OGG, MP4, MOV, MKV и другие медиаформаты."
+          dropzoneTitle="Перетащи аудио или видео"
+          files={mediaFiles}
+          icon={AudioLines}
+          label="Обработка аудио и видео"
+          onFileReject={handleFileReject}
+          onUpload={async (files, options) => {
+            await transcribeMutation.mutateAsync({
+              files,
+              onError: options.onError,
+              onProgress: options.onProgress,
+              onSuccess: options.onSuccess,
+            });
+          }}
+          onValueChange={setMediaFiles}
+          title="Аудио и видео"
+        />
       </div>
 
-      <Card className="ring-1 ring-border/80">
-        <CardHeader>
-          <CardTitle className="text-2xl text-[var(--text-h)]">
-            Источники блокнота
-          </CardTitle>
-          <CardDescription>
-            Все добавленные материалы и текущий статус их подготовки.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {notebook && notebook.sources.length > 0 ? (
-            <div className="space-y-3">
-              {notebook.sources.map((source) => (
-                <div
-                  key={source.id}
-                  className="rounded-3xl border border-border bg-card px-5 py-5"
-                >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0 space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-lg font-semibold text-[var(--text-h)]">
-                          {source.filename}
-                        </p>
-                        {shouldShowSourceStatusBadge(source.status) ? (
-                          <span
-                            className={cn(
-                              "rounded-full border px-3 py-1 text-xs",
-                              getSourceStatusTone(source.status),
-                            )}
-                          >
-                            {getSourceStatusLabel(source.status)}
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {source.chunks_count} фрагментов •{" "}
-                        {formatNotebookDate(source.created_at)}
-                      </p>
-                      {source.doc_type ? (
-                        <p className="text-sm text-muted-foreground">
-                          Тип документа: {source.doc_type}
-                        </p>
-                      ) : null}
-                      {Array.isArray(source.tags) && source.tags.length > 0 ? (
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          {source.tags.map((tag) => (
-                            <span
-                              key={`${source.id}-${tag}`}
-                              className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs text-muted-foreground"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-                      {source.error && (
-                        <p className="text-sm leading-6 text-destructive">
-                          {source.error}
-                        </p>
-                      )}
-                    </div>
-
-                    <Button
-                      className="w-full lg:w-auto"
-                      disabled={removeSourceMutation.isPending}
-                      onClick={() =>
-                        void removeSourceMutation.mutateAsync(source.id)
-                      }
-                      type="button"
-                      variant="outline"
-                    >
-                      <Trash2 className="size-4" />
-                      Удалить источник
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <ArtifactPlaceholder
-              title="Источников пока нет"
-              description="Добавь документы или запись, чтобы блокнот получил рабочий контекст."
-            />
-          )}
-        </CardContent>
-      </Card>
+      <NotebookSourceList
+        isRemoving={removeSourceMutation.isPending}
+        onRemove={(sourceId) => void removeSourceMutation.mutateAsync(sourceId)}
+        sources={notebook?.sources ?? []}
+      />
     </div>
   );
 }

@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from "@/shared/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import { Notebook, PlusCircle, User, Users } from "lucide-react";
+import { Lock, LockOpen, PlusCircle, User } from "lucide-react";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { notebookOptions } from "@/entities/notebook/api/notebook.options";
@@ -29,11 +29,8 @@ export function AppSidebar() {
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
-      <SidebarHeader className="flex-row items-center justify-between gap-2 border-b px-2 py-2 group-data-[collapsible=icon]:px-1.5 group-data-[collapsible=icon]:justify-center">
+      <SidebarHeader className="h-18 flex-row items-center justify-between gap-2 border-b px-2 py-2 group-data-[collapsible=icon]:px-1.5 group-data-[collapsible=icon]:justify-center">
         <div className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:hidden">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-md">
-            <Users className="size-4" />
-          </div>
           <span className="font-semibold truncate ">CentralAI</span>
         </div>
         <div className="flex gap-x-2 items-center">
@@ -52,6 +49,7 @@ export function AppSidebar() {
                   preloadDelay={500}
                   to="/notebooks"
                   activeOptions={{ exact: true }}
+                  className="text-muted-foreground"
                   activeProps={{
                     className:
                       "bg-sidebar-accent text-sidebar-accent-foreground",
@@ -84,9 +82,11 @@ export function AppSidebar() {
                         className:
                           "bg-sidebar-accent  text-sidebar-accent-foreground",
                       }}
-                      className={cn("transition-all duration-300")}
+                      className={cn(
+                        "transition-all duration-300 text-muted-foreground",
+                      )}
                     >
-                      <Notebook />
+                      {notebook.contour === "closed" ? <Lock /> : <LockOpen />}
                       <span className="text-md">{notebook.title}</span>
                     </Link>
                   </SidebarMenuButton>

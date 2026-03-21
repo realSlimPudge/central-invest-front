@@ -12,28 +12,14 @@ import {
   TimerReset,
 } from "lucide-react";
 
-import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
 import {
   getNotebookModuleAvailabilityMap,
   type NotebookModuleId,
 } from "@/features/notebook-workspace/model/notebook-module-availability";
-import {
-  formatNotebookDate,
-  getContourDescription,
-  getContourLabel,
-  getSourceStatusLabel,
-  getSourceStatusTone,
-  shouldShowSourceStatusBadge,
-} from "@/features/notebook-workspace/lib/notebook-ui";
+
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
-import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
+
 import { cn } from "@/shared/lib/utils";
 
 const quickActions = [
@@ -152,20 +138,15 @@ export function NotebookOverviewPage() {
   ];
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_360px]">
-      <div className="space-y-6">
-        <Card className="ring-1 ring-border/80">
-          <CardHeader>
-            <CardTitle className="text-2xl text-[var(--text-h)]">
-              Рабочий сценарий
-            </CardTitle>
-            <CardDescription className="text-base leading-7">
-              Сначала собери материалы, потом задавай вопросы и переключайся
-              между артефактами. Один блокнот — единый контекст для всех
-              экранов.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div className="space-y-6">
+      <NotebookModuleHeader
+        description="Быстрый срез по блокноту: что уже готово, куда перейти дальше и на каких материалах все строится."
+        title="Обзор"
+      />
+
+      <div className="grid gap-6">
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {quickActions.map(
               ({ module, title, description, to, icon: Icon }) => {
                 const availability = moduleAvailability[module];
@@ -220,19 +201,13 @@ export function NotebookOverviewPage() {
                 );
               },
             )}
-          </CardContent>
-        </Card>
+          </div>
+          <NotebookModuleHeader
+            description="Быстрый срез того, что уже собрано по этому блокноту."
+            title="Готовность модулей"
+          />
 
-        <Card className="ring-1 ring-border/80">
-          <CardHeader>
-            <CardTitle className="text-2xl text-[var(--text-h)]">
-              Готовность модулей
-            </CardTitle>
-            <CardDescription>
-              Быстрый срез того, что уже собрано по этому блокноту.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {readiness.map(({ module, label, value, to, icon: Icon }) => {
               const availability = moduleAvailability[module];
               const content = (
@@ -286,108 +261,8 @@ export function NotebookOverviewPage() {
                 </Link>
               );
             })}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="space-y-6">
-        <Card className="ring-1 ring-border/80">
-          <CardHeader>
-            <CardTitle className="text-xl text-[var(--text-h)]">
-              Состояние блокнота
-            </CardTitle>
-            <CardDescription>
-              Текущий режим, последние загрузки и общая картина по материалам.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-2xl border border-border bg-muted/40 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                Режим работы
-              </p>
-              <p className="mt-2 font-semibold text-[var(--text-h)]">
-                {getContourLabel(notebook?.contour)}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {getContourDescription(notebook?.contour)}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-border bg-card px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                Последнее обновление
-              </p>
-              <p className="mt-2 font-semibold text-[var(--text-h)]">
-                {notebook ? formatNotebookDate(notebook.created_at) : "—"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="ring-1 ring-border/80">
-          <CardHeader>
-            <CardTitle className="text-xl text-[var(--text-h)]">
-              Источники
-            </CardTitle>
-            <CardDescription>
-              Последние материалы, на которых строится весь блокнот.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {notebook && notebook.sources.length > 0 ? (
-              <div className="space-y-3">
-                {notebook.sources.slice(0, 5).map((source) => (
-                  <div
-                    key={source.id}
-                    className="rounded-2xl border border-border bg-card px-4 py-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-[var(--text-h)]">
-                          {source.filename}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {source.chunks_count} фрагментов •{" "}
-                          {formatNotebookDate(source.created_at)}
-                        </p>
-                      </div>
-                      {shouldShowSourceStatusBadge(source.status) ? (
-                        <span
-                          className={cn(
-                            "rounded-full border px-3 py-1 text-xs",
-                            getSourceStatusTone(source.status),
-                          )}
-                        >
-                          {getSourceStatusLabel(source.status)}
-                        </span>
-                      ) : null}
-                    </div>
-                    {source.error && (
-                      <p className="mt-3 text-sm text-destructive">
-                        {source.error}
-                      </p>
-                    )}
-                  </div>
-                ))}
-
-                <Button asChild className="w-full" variant="outline">
-                  <Link
-                    params={{ id: notebookId }}
-                    resetScroll={false}
-                    to="/notebooks/$id/sources"
-                  >
-                    Перейти к источникам
-                  </Link>
-                </Button>
-              </div>
-            ) : (
-              <ArtifactPlaceholder
-                title="Источники пока не добавлены"
-                description="Начни с загрузки документов или записей, и блокнот сразу станет полезным инструментом для работы."
-              />
-            )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

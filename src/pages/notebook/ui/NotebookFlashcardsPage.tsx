@@ -5,7 +5,10 @@ import { toast } from "sonner";
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import { NotebookFlashcardsTab } from "@/features/notebook-flashcards/ui/NotebookFlashcardsTab";
-import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import {
+  getNotebookErrorMessage,
+  runNotebookRequestWithToast,
+} from "@/features/notebook-workspace/lib/notebook-ui";
 import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
@@ -23,18 +26,20 @@ export function NotebookFlashcardsPage() {
     mutationKey: notebookKeys.flashcards(),
     mutationFn: () =>
       notebookApi.flashcards(notebookId, { count: flashcardsCount }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: notebookKeys.detail(notebookId),
-      });
-      toast.success("Карточки обновлены");
-    },
-    onError: (error) => {
-      toast.error(
-        getNotebookErrorMessage(error, "Не удалось сгенерировать карточки"),
-      );
-    },
   });
+
+  const handleGenerate = async () =>
+    runNotebookRequestWithToast({
+      request: flashcardsMutation.mutateAsync().then(async (result) => {
+        await queryClient.invalidateQueries({
+          queryKey: notebookKeys.detail(notebookId),
+        });
+        return result;
+      }),
+      loading: "Генерируем карточки...",
+      success: "Карточки обновлены",
+      error: "Не удалось сгенерировать карточки",
+    });
 
   const flashcardsCheckMutation = useMutation({
     mutationKey: notebookKeys.checkFlashcard(),
@@ -80,7 +85,7 @@ export function NotebookFlashcardsPage() {
         }
       }}
       onFlashcardsCountChange={setFlashcardsCount}
-      onGenerate={() => void flashcardsMutation.mutateAsync()}
+      onGenerate={() => void handleGenerate()}
     />
   );
 }

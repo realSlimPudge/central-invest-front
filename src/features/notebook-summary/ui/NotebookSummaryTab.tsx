@@ -68,7 +68,7 @@ export function NotebookSummaryTab({
 
       {summary ? (
         <div className="rounded-3xl border border-border bg-card px-6 py-5">
-          <div className="space-y-4 overflow-auto max-h-105">
+          <div className="space-y-4 overflow-auto h-full">
             <ReactMarkdown components={summaryMarkdownComponents}>
               {summary}
             </ReactMarkdown>

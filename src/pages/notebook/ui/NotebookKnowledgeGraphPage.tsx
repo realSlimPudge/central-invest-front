@@ -1,12 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Network } from "lucide-react";
-import { toast } from "sonner";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import type { NotebookKnowledgeGraph } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
-import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { runNotebookRequestWithToast } from "@/features/notebook-workspace/lib/notebook-ui";
 import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
@@ -44,18 +43,20 @@ export function NotebookKnowledgeGraphPage() {
   const graphMutation = useMutation({
     mutationKey: notebookKeys.knowledgeGraph(),
     mutationFn: () => notebookApi.knowledgeGraph(notebookId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: notebookKeys.detail(notebookId),
-      });
-      toast.success("Граф знаний обновлен");
-    },
-    onError: (error) => {
-      toast.error(
-        getNotebookErrorMessage(error, "Не удалось построить граф знаний"),
-      );
-    },
   });
+
+  const handleGenerate = async () =>
+    runNotebookRequestWithToast({
+      request: graphMutation.mutateAsync().then(async (result) => {
+        await queryClient.invalidateQueries({
+          queryKey: notebookKeys.detail(notebookId),
+        });
+        return result;
+      }),
+      loading: "Строим граф знаний...",
+      success: "Граф знаний обновлен",
+      error: "Не удалось построить граф знаний",
+    });
 
   if (!moduleAvailability.enabled) {
     return (
@@ -73,7 +74,7 @@ export function NotebookKnowledgeGraphPage() {
         actions={
           <Button
             disabled={graphMutation.isPending}
-            onClick={() => void graphMutation.mutateAsync()}
+            onClick={() => void handleGenerate()}
             type="button"
           >
             <Network className="size-4" />

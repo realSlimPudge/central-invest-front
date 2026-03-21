@@ -2,6 +2,7 @@ import type {
   Notebook,
   NotebookSource,
 } from "@/entities/notebook/api/dto/notebook.types";
+import { toast } from "sonner";
 
 export function formatNotebookDate(value: string) {
   return new Intl.DateTimeFormat("ru-RU", {
@@ -18,6 +19,28 @@ export function getNotebookErrorMessage(error: unknown, fallback: string) {
   }
 
   return fallback;
+}
+
+type RunNotebookRequestWithToastOptions<T> = {
+  request: Promise<T>;
+  loading: string;
+  success: string;
+  error: string;
+};
+
+export async function runNotebookRequestWithToast<T>({
+  request,
+  loading,
+  success,
+  error,
+}: RunNotebookRequestWithToastOptions<T>) {
+  toast.promise(request, {
+    loading,
+    success,
+    error: (requestError) => getNotebookErrorMessage(requestError, error),
+  });
+
+  return await request;
 }
 
 export function getNotebookFilledArtifactsCount(

@@ -2,6 +2,7 @@ export type MeRes = {
   id: string;
   title: string;
   created_at: string;
+  contour?: NotebookContour;
 }[];
 export type NotebookSource = {
   id: string;

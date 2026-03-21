@@ -1,12 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScrollText } from "lucide-react";
-import { toast } from "sonner";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import type { NotebookContract } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
-import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { runNotebookRequestWithToast } from "@/features/notebook-workspace/lib/notebook-ui";
 import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
@@ -63,18 +62,20 @@ export function NotebookContractPage() {
   const contractMutation = useMutation({
     mutationKey: notebookKeys.contract(),
     mutationFn: () => notebookApi.contract(notebookId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: notebookKeys.detail(notebookId),
-      });
-      toast.success("Анализ договора обновлен");
-    },
-    onError: (error) => {
-      toast.error(
-        getNotebookErrorMessage(error, "Не удалось проанализировать договор"),
-      );
-    },
   });
+
+  const handleGenerate = async () =>
+    runNotebookRequestWithToast({
+      request: contractMutation.mutateAsync().then(async (result) => {
+        await queryClient.invalidateQueries({
+          queryKey: notebookKeys.detail(notebookId),
+        });
+        return result;
+      }),
+      loading: "Проводим анализ договора...",
+      success: "Анализ договора обновлен",
+      error: "Не удалось проанализировать договор",
+    });
 
   if (!moduleAvailability.enabled) {
     return (
@@ -92,7 +93,7 @@ export function NotebookContractPage() {
         actions={
           <Button
             disabled={contractMutation.isPending}
-            onClick={() => void contractMutation.mutateAsync()}
+            onClick={() => void handleGenerate()}
             type="button"
           >
             <ScrollText className="size-4" />
