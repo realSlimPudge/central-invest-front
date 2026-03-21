@@ -6,11 +6,17 @@ import { notebookApi } from "@/entities/notebook/api/notebook.api";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import { NotebookFlashcardsTab } from "@/features/notebook-flashcards/ui/NotebookFlashcardsTab";
 import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 
 export function NotebookFlashcardsPage() {
   const queryClient = useQueryClient();
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(
+    notebook,
+    "flashcards",
+  );
   const [flashcardsCount, setFlashcardsCount] = useState(10);
 
   const flashcardsMutation = useMutation({
@@ -47,6 +53,16 @@ export function NotebookFlashcardsPage() {
         user_answer: userAnswer,
       }),
   });
+
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Карточки"
+      />
+    );
+  }
 
   return (
     <NotebookFlashcardsTab

@@ -7,11 +7,14 @@ import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import { type SummaryStyle } from "@/features/notebook-artifacts/model/notebook-artifacts";
 import { NotebookSummaryTab } from "@/features/notebook-summary/ui/NotebookSummaryTab";
 import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 
 export function NotebookSummaryPage() {
   const queryClient = useQueryClient();
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(notebook, "summary");
   const [summaryStyle, setSummaryStyle] = useState<SummaryStyle>("official");
 
   const summaryMutation = useMutation({
@@ -24,9 +27,21 @@ export function NotebookSummaryPage() {
       toast.success("Саммари обновлено");
     },
     onError: (error) => {
-      toast.error(getNotebookErrorMessage(error, "Не удалось обновить саммари"));
+      toast.error(
+        getNotebookErrorMessage(error, "Не удалось обновить саммари"),
+      );
     },
   });
+
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Саммари"
+      />
+    );
+  }
 
   return (
     <NotebookSummaryTab

@@ -37,9 +37,7 @@ export function AppSidebar() {
           <span className="font-semibold truncate ">CentralAI</span>
         </div>
         <div className="flex gap-x-2 items-center">
-          <div className="group-data-[collapsible=icon]:hidden">
-            <AnimatedThemeToggler />
-          </div>
+          <AnimatedThemeToggler className="group-data-[collapsible=icon]:hidden" />
           <SidebarTrigger />
         </div>
       </SidebarHeader>

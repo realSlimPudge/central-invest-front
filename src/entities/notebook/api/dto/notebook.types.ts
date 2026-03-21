@@ -10,6 +10,8 @@ export type NotebookSource = {
   created_at: string;
   status?: string;
   error?: string | null;
+  doc_type?: string | null;
+  tags?: string[];
 };
 
 export type MindmapNode = {
@@ -119,6 +121,8 @@ export type Notebook = {
   title: string;
   created_at: string;
   contour?: NotebookContour;
+  doc_type?: string | null;
+  tags?: string[];
   sources: NotebookSource[];
   summary?: string | null;
   mindmap?: MindmapNode | Record<string, unknown> | null;

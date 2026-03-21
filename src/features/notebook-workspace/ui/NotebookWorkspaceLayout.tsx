@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { FolderPlus, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
@@ -43,6 +43,10 @@ import {
   getReadySourcesCount,
 } from "@/features/notebook-workspace/lib/notebook-ui";
 import {
+  getNotebookModuleAvailabilityMap,
+  type NotebookModuleId,
+} from "@/features/notebook-workspace/model/notebook-module-availability";
+import {
   contourOptions,
   type NotebookWorkspaceSection,
   notebookWorkspaceSections,
@@ -78,23 +82,77 @@ function isSectionActive(
 }
 
 type NotebookNavigationItemProps = ComponentPropsWithoutRef<"li"> & {
+  module: NotebookModuleId;
   to: string;
   title: string;
   description: string;
   notebookId: string;
   icon: NotebookWorkspaceSection["items"][number]["icon"];
   isActive: boolean;
+  disabled?: boolean;
+  reason?: string;
 };
 
 function NotebookNavigationItem({
+  module,
   to,
   title,
   description,
   notebookId,
   icon: Icon,
   isActive,
+  disabled,
+  reason,
   ...props
 }: NotebookNavigationItemProps) {
+  const content = (
+    <>
+      <div
+        className={cn(
+          "flex size-9 items-center justify-center rounded-lg border border-border bg-muted text-foreground",
+          isActive && "border-primary/20 bg-primary/10 text-foreground",
+          disabled && "border-border bg-muted/60 text-muted-foreground",
+        )}
+      >
+        <Icon className="size-4" />
+      </div>
+      <div className="flex min-w-0 max-w-[80%] flex-col gap-1 text-sm">
+        <div className="flex items-center gap-2">
+          <div
+            className={cn(
+              "leading-none font-medium text-foreground",
+              disabled && "text-muted-foreground",
+            )}
+          >
+            {title}
+          </div>
+          {disabled ? (
+            <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+              Недоступно
+            </span>
+          ) : null}
+        </div>
+        <div className="line-clamp-3 w-full truncate leading-5 text-muted-foreground wrap-break-word">
+          {disabled ? (reason ?? description) : description}
+        </div>
+      </div>
+    </>
+  );
+
+  if (disabled) {
+    return (
+      <li {...props}>
+        <div
+          aria-disabled="true"
+          className="flex min-h-20 min-w-0 cursor-not-allowed gap-3 rounded-xl border border-dashed border-border bg-muted/20 no-underline opacity-70 outline-none select-none"
+          data-module={module}
+        >
+          {content}
+        </div>
+      </li>
+    );
+  }
+
   return (
     <li {...props}>
       <NavigationMenuLink asChild>
@@ -109,22 +167,7 @@ function NotebookNavigationItem({
           resetScroll={false}
           to={to}
         >
-          <div
-            className={cn(
-              "flex size-9 items-center justify-center rounded-lg border border-border bg-muted text-foreground",
-              isActive && "border-primary/20 bg-primary/10 text-foreground",
-            )}
-          >
-            <Icon className="size-4" />
-          </div>
-          <div className="flex min-w-0 max-w-[80%] flex-col gap-1 text-sm">
-            <div className="leading-none font-medium text-foreground">
-              {title}
-            </div>
-            <div className="line-clamp-3 leading-5 text-muted-foreground truncate wrap-break-word w-full">
-              {description}
-            </div>
-          </div>
+          {content}
         </Link>
       </NavigationMenuLink>
     </li>
@@ -134,6 +177,7 @@ function NotebookNavigationItem({
 export function NotebookWorkspaceLayout() {
   const queryClient = useQueryClient();
   const { notebookId, notebook, notebookQuery } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailabilityMap(notebook);
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
@@ -154,14 +198,12 @@ export function NotebookWorkspaceLayout() {
 
       toast.success(
         contour === "closed"
-          ? "Закрытый контур включен"
-          : "Открытый контур включен",
+          ? "Включен закрытый режим"
+          : "Включен стандартный режим",
       );
     },
     onError: (error) => {
-      toast.error(
-        getNotebookErrorMessage(error, "Не удалось переключить контур"),
-      );
+      toast.error(getNotebookErrorMessage(error, "Не удалось сменить режим"));
     },
   });
 
@@ -211,7 +253,7 @@ export function NotebookWorkspaceLayout() {
                   <div className="flex flex-wrap gap-3">
                     <div className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-foreground">
                       <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                        Контур
+                        Режим
                       </p>
                       <p className="mt-2 font-medium text-foreground">
                         {getContourLabel(notebook?.contour)}
@@ -265,7 +307,7 @@ export function NotebookWorkspaceLayout() {
                 value={notebook?.contour ?? "open"}
               >
                 <SelectTrigger className="h-11 w-full sm:w-56">
-                  <SelectValue placeholder="Выбери контур" />
+                  <SelectValue placeholder="Выбери режим" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -287,13 +329,6 @@ export function NotebookWorkspaceLayout() {
                 Обновить данные
               </Button>
             </div>
-
-            <Button asChild variant="outline">
-              <Link to="/notebooks">
-                <FolderPlus className="size-4" />
-                Новый блокнот
-              </Link>
-            </Button>
           </CardContent>
         </Card>
 
@@ -326,7 +361,14 @@ export function NotebookWorkspaceLayout() {
                       <NavigationMenuContent className="w-[400px] md:w-[540px] lg:w-[640px] z-20">
                         <ul className="grid gap-2 md:grid-cols-2">
                           {section.items.map(
-                            ({ to, label, description, icon: Icon, exact }) => {
+                            ({
+                              module,
+                              to,
+                              label,
+                              description,
+                              icon: Icon,
+                              exact,
+                            }) => {
                               const resolvedPath = resolveNotebookPath(
                                 to,
                                 notebookId,
@@ -336,14 +378,18 @@ export function NotebookWorkspaceLayout() {
                                 resolvedPath,
                                 exact,
                               );
+                              const availability = moduleAvailability[module];
 
                               return (
                                 <NotebookNavigationItem
                                   description={description}
+                                  disabled={!availability.enabled}
                                   icon={Icon}
                                   isActive={isActive}
                                   key={to}
+                                  module={module}
                                   notebookId={notebookId}
+                                  reason={availability.reason}
                                   title={label}
                                   to={to}
                                 />

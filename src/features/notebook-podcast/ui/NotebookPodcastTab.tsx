@@ -114,9 +114,6 @@ export function NotebookPodcastTab({
       {podcastUrl ? (
         <div className="space-y-4 rounded-3xl border border-border bg-card px-6 py-5">
           <audio className="w-full" controls src={podcastUrl} />
-          <p className="break-all text-xs text-muted-foreground">
-            {podcastUrl}
-          </p>
         </div>
       ) : (
         <ArtifactPlaceholder

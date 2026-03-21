@@ -11,9 +11,11 @@ import type {
 } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
 import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { questionContextOptions } from "@/features/notebook-workspace/model/notebook-workspace";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -56,6 +58,10 @@ function getPriorityTone(priority?: string) {
 export function NotebookQuestionsPage() {
   const queryClient = useQueryClient();
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(
+    notebook,
+    "questions",
+  );
   const [contextValue, setContextValue] = useState("general");
   const questions = asQuestions(notebook?.questions);
   const items = Array.isArray(questions?.questions)
@@ -76,6 +82,16 @@ export function NotebookQuestionsPage() {
       toast.error(getNotebookErrorMessage(error, "Не удалось собрать вопросы"));
     },
   });
+
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Вопросы к документу"
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

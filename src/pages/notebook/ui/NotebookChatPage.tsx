@@ -15,7 +15,9 @@ import {
   getContourLabel,
   getNotebookErrorMessage,
 } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -34,9 +36,10 @@ const starterPrompts = [
 
 export function NotebookChatPage() {
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(notebook, "chat");
   const chatHistoryQuery = useQuery({
     ...notebookOptions.chat(notebookId),
-    enabled: Boolean(notebookId),
+    enabled: Boolean(notebookId) && moduleAvailability.enabled,
   });
   const clearHistoryMutation = useMutation({
     mutationKey: [...notebookOptions.chat(notebookId).queryKey, "clear"],
@@ -167,6 +170,16 @@ export function NotebookChatPage() {
       setAbortController(null);
     }
   };
+
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Чат"
+      />
+    );
+  }
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -345,7 +358,7 @@ export function NotebookChatPage() {
           <CardContent className="space-y-4">
             <div className="rounded-2xl border border-border bg-muted/40 px-4 py-4">
               <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                Контур
+                Режим
               </p>
               <p className="mt-2 font-semibold text-foreground">
                 {getContourLabel(notebook?.contour)}

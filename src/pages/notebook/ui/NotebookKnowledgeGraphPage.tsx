@@ -7,8 +7,10 @@ import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import type { NotebookKnowledgeGraph } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
 import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -31,6 +33,10 @@ function asKnowledgeGraph(
 export function NotebookKnowledgeGraphPage() {
   const queryClient = useQueryClient();
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(
+    notebook,
+    "knowledge-graph",
+  );
   const graph = asKnowledgeGraph(notebook?.knowledge_graph);
   const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
   const edges = Array.isArray(graph?.edges) ? graph.edges : [];
@@ -50,6 +56,16 @@ export function NotebookKnowledgeGraphPage() {
       );
     },
   });
+
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Граф знаний"
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

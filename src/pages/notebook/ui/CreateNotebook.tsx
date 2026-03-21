@@ -22,7 +22,7 @@ export function CreateNotebookPage() {
       initial={{ y: -10, opacity: 0 }}
       transition={{ type: "tween" }}
     >
-      <Empty>
+      <Empty className="h-full w-full justify-center items-center">
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <FileIcon />

@@ -11,6 +11,7 @@ import {
   getNotebookErrorMessage,
   getSourceStatusLabel,
   getSourceStatusTone,
+  shouldShowSourceStatusBadge,
 } from "@/features/notebook-workspace/lib/notebook-ui";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { Button } from "@/shared/components/ui/button";
@@ -84,7 +85,9 @@ export function NotebookSourcesPage() {
   const invalidateNotebook = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: notebookKeys.list() }),
-      queryClient.invalidateQueries({ queryKey: notebookKeys.detail(notebookId) }),
+      queryClient.invalidateQueries({
+        queryKey: notebookKeys.detail(notebookId),
+      }),
     ]);
   };
 
@@ -108,7 +111,9 @@ export function NotebookSourcesPage() {
           successCount += 1;
         } catch (error) {
           const uploadError =
-            error instanceof Error ? error : new Error("Не удалось загрузить файл");
+            error instanceof Error
+              ? error
+              : new Error("Не удалось загрузить файл");
           failedFiles.push(file);
           onError(file, uploadError);
         }
@@ -135,7 +140,9 @@ export function NotebookSourcesPage() {
       toast.error(`Загружено ${successCount} из ${total} документов`);
     },
     onError: (error) => {
-      toast.error(getNotebookErrorMessage(error, "Не удалось загрузить документы"));
+      toast.error(
+        getNotebookErrorMessage(error, "Не удалось загрузить документы"),
+      );
     },
   });
 
@@ -159,7 +166,9 @@ export function NotebookSourcesPage() {
           successCount += 1;
         } catch (error) {
           const uploadError =
-            error instanceof Error ? error : new Error("Не удалось транскрибировать файл");
+            error instanceof Error
+              ? error
+              : new Error("Не удалось обработать файл");
           failedFiles.push(file);
           onError(file, uploadError);
         }
@@ -174,7 +183,7 @@ export function NotebookSourcesPage() {
       }
 
       if (successCount === total) {
-        toast.success(`Транскрибировано файлов: ${successCount}`);
+        toast.success(`Обработано файлов: ${successCount}`);
         return;
       }
 
@@ -194,13 +203,16 @@ export function NotebookSourcesPage() {
 
   const removeSourceMutation = useMutation({
     mutationKey: notebookKeys.removeSource(),
-    mutationFn: (sourceId: string) => notebookApi.removeSource(notebookId, sourceId),
+    mutationFn: (sourceId: string) =>
+      notebookApi.removeSource(notebookId, sourceId),
     onSuccess: async () => {
       await invalidateNotebook();
       toast.success("Источник удален");
     },
     onError: (error) => {
-      toast.error(getNotebookErrorMessage(error, "Не удалось удалить источник"));
+      toast.error(
+        getNotebookErrorMessage(error, "Не удалось удалить источник"),
+      );
     },
   });
 
@@ -214,15 +226,17 @@ export function NotebookSourcesPage() {
             </CardTitle>
             <CardDescription className="text-base leading-7">
               Загружай PDF, DOCX, TXT, CSV и XLSX. После загрузки документы
-              разбиваются на чанки и сразу становятся доступными для поиска и
-              генерации артефактов.
+              разбиваются на фрагменты и сразу становятся доступными для поиска
+              и генерации артефактов.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <FileUpload
               accept={documentAccept}
               className="w-full"
-              disabled={uploadDocumentsMutation.isPending || notebookQuery.isPending}
+              disabled={
+                uploadDocumentsMutation.isPending || notebookQuery.isPending
+              }
               label="Загрузка документов"
               multiple
               onFileReject={(file, message) => {
@@ -265,7 +279,12 @@ export function NotebookSourcesPage() {
                       <FileUploadItemProgress />
                     </div>
                     <FileUploadItemDelete asChild>
-                      <Button className="size-8 rounded-full" size="icon" type="button" variant="ghost">
+                      <Button
+                        className="size-8 rounded-full"
+                        size="icon"
+                        type="button"
+                        variant="ghost"
+                      >
                         <X className="size-4 text-muted-foreground" />
                       </Button>
                     </FileUploadItemDelete>
@@ -282,8 +301,8 @@ export function NotebookSourcesPage() {
               Аудио и видео
             </CardTitle>
             <CardDescription className="text-base leading-7">
-              Загружай записи и ролики. Бэк прогонит их через Whisper и сохранит
-              транскрипцию как обычный источник внутри блокнота.
+              Загружай записи и ролики. Система подготовит текстовую версию и
+              добавит ее в блокнот как обычный источник.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -291,7 +310,7 @@ export function NotebookSourcesPage() {
               accept={mediaAccept}
               className="w-full"
               disabled={transcribeMutation.isPending || notebookQuery.isPending}
-              label="Транскрибация аудио и видео"
+              label="Обработка аудио и видео"
               multiple
               onFileReject={(file, message) => {
                 toast.error(`${file.name}: ${message}`);
@@ -333,7 +352,12 @@ export function NotebookSourcesPage() {
                       <FileUploadItemProgress />
                     </div>
                     <FileUploadItemDelete asChild>
-                      <Button className="size-8 rounded-full" size="icon" type="button" variant="ghost">
+                      <Button
+                        className="size-8 rounded-full"
+                        size="icon"
+                        type="button"
+                        variant="ghost"
+                      >
                         <X className="size-4 text-muted-foreground" />
                       </Button>
                     </FileUploadItemDelete>
@@ -351,7 +375,7 @@ export function NotebookSourcesPage() {
             Источники блокнота
           </CardTitle>
           <CardDescription>
-            Все документы, транскрипции и текущий статус их обработки.
+            Все добавленные материалы и текущий статус их подготовки.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -368,18 +392,38 @@ export function NotebookSourcesPage() {
                         <p className="truncate text-lg font-semibold text-[var(--text-h)]">
                           {source.filename}
                         </p>
-                        <span
-                          className={cn(
-                            "rounded-full border px-3 py-1 text-xs",
-                            getSourceStatusTone(source.status),
-                          )}
-                        >
-                          {getSourceStatusLabel(source.status)}
-                        </span>
+                        {shouldShowSourceStatusBadge(source.status) ? (
+                          <span
+                            className={cn(
+                              "rounded-full border px-3 py-1 text-xs",
+                              getSourceStatusTone(source.status),
+                            )}
+                          >
+                            {getSourceStatusLabel(source.status)}
+                          </span>
+                        ) : null}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {source.chunks_count} чанков • {formatNotebookDate(source.created_at)}
+                        {source.chunks_count} фрагментов •{" "}
+                        {formatNotebookDate(source.created_at)}
                       </p>
+                      {source.doc_type ? (
+                        <p className="text-sm text-muted-foreground">
+                          Тип документа: {source.doc_type}
+                        </p>
+                      ) : null}
+                      {Array.isArray(source.tags) && source.tags.length > 0 ? (
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {source.tags.map((tag) => (
+                            <span
+                              key={`${source.id}-${tag}`}
+                              className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs text-muted-foreground"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                       {source.error && (
                         <p className="text-sm leading-6 text-destructive">
                           {source.error}
@@ -390,7 +434,9 @@ export function NotebookSourcesPage() {
                     <Button
                       className="w-full lg:w-auto"
                       disabled={removeSourceMutation.isPending}
-                      onClick={() => void removeSourceMutation.mutateAsync(source.id)}
+                      onClick={() =>
+                        void removeSourceMutation.mutateAsync(source.id)
+                      }
                       type="button"
                       variant="outline"
                     >
@@ -404,7 +450,7 @@ export function NotebookSourcesPage() {
           ) : (
             <ArtifactPlaceholder
               title="Источников пока нет"
-              description="Добавь документы или загрузи запись на транскрибацию, чтобы блокнот получил рабочий контекст."
+              description="Добавь документы или запись, чтобы блокнот получил рабочий контекст."
             />
           )}
         </CardContent>

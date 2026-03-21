@@ -7,8 +7,10 @@ import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import type { NotebookContract } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
 import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -52,6 +54,10 @@ function ContractList({ title, items }: { title: string; items?: string[] }) {
 export function NotebookContractPage() {
   const queryClient = useQueryClient();
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(
+    notebook,
+    "contract",
+  );
   const contract = asContract(notebook?.contract);
 
   const contractMutation = useMutation({
@@ -69,6 +75,16 @@ export function NotebookContractPage() {
       );
     },
   });
+
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Анализ договора"
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

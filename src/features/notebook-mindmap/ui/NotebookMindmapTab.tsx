@@ -67,7 +67,7 @@ export function NotebookMindmapTab({
                 </CardTitle>
                 <CardDescription className="mt-2 text-sm leading-6">
                   Наведи фокус на нужную ветку, увеличь масштаб и быстро
-                  проверь, как бэкенд разложил знания по темам.
+                  посмотри, как система разложила материал по темам.
                 </CardDescription>
               </div>
 
@@ -201,11 +201,11 @@ export function NotebookMindmapTab({
         <Card className="ring-1 ring-border/80">
           <CardHeader>
             <CardTitle className="text-xl text-[var(--text-h)]">
-              Ответ карты пока нестабилен
+              Карта пока отображается не полностью
             </CardTitle>
             <CardDescription>
-              Бэкенд вернул структуру, которая не совпала с ожидаемым форматом.
-              Ниже оставляю сырой ответ для проверки.
+              Структура пришла в нестандартном виде. Ниже показываем данные как
+              есть.
             </CardDescription>
           </CardHeader>
           <CardContent>

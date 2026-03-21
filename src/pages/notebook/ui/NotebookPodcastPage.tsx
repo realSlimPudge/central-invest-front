@@ -7,11 +7,14 @@ import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import { type PodcastTone } from "@/features/notebook-artifacts/model/notebook-artifacts";
 import { NotebookPodcastTab } from "@/features/notebook-podcast/ui/NotebookPodcastTab";
 import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 
 export function NotebookPodcastPage() {
   const queryClient = useQueryClient();
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(notebook, "podcast");
   const [podcastTone, setPodcastTone] = useState<PodcastTone>("popular");
 
   const podcastMutation = useMutation({
@@ -29,6 +32,16 @@ export function NotebookPodcastPage() {
       );
     },
   });
+
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Подкаст"
+      />
+    );
+  }
 
   return (
     <NotebookPodcastTab

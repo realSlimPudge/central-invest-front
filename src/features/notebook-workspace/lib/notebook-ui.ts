@@ -20,7 +20,9 @@ export function getNotebookErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-export function getNotebookFilledArtifactsCount(notebook: Notebook | undefined) {
+export function getNotebookFilledArtifactsCount(
+  notebook: Notebook | undefined,
+) {
   if (!notebook) {
     return 0;
   }
@@ -67,12 +69,16 @@ export function getSourceStatusTone(status?: string) {
   }
 }
 
+export function shouldShowSourceStatusBadge(status?: string) {
+  return status !== "processing";
+}
+
 export function getContourLabel(contour?: string) {
-  return contour === "closed" ? "Закрытый контур" : "Открытый контур";
+  return contour === "closed" ? "Закрытый режим" : "Стандартный режим";
 }
 
 export function getContourDescription(contour?: string) {
   return contour === "closed"
-    ? "Данные остаются в закрытом контуре и идут через локальную обработку."
-    : "Данные обрабатываются через внешний API для более быстрого и качественного результата.";
+    ? "Подходит, когда нужен более закрытый режим работы с материалами."
+    : "Подходит для повседневной работы с блокнотом.";
 }

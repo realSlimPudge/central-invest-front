@@ -10,8 +10,10 @@ import type {
 } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
 import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
@@ -42,6 +44,10 @@ function getEventTone(type?: string) {
 export function NotebookTimelinePage() {
   const queryClient = useQueryClient();
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(
+    notebook,
+    "timeline",
+  );
   const timeline = asTimeline(notebook?.timeline);
   const events = Array.isArray(timeline?.events)
     ? (timeline?.events as NotebookTimelineEvent[])
@@ -62,6 +68,16 @@ export function NotebookTimelinePage() {
       );
     },
   });
+
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Таймлайн"
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

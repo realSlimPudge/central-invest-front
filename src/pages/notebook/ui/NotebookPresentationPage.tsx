@@ -11,9 +11,11 @@ import type {
 } from "@/entities/notebook/api/dto/notebook.types";
 import { ArtifactPlaceholder } from "@/features/notebook-artifacts/ui/ArtifactPlaceholder";
 import { getNotebookErrorMessage } from "@/features/notebook-workspace/lib/notebook-ui";
+import { getNotebookModuleAvailability } from "@/features/notebook-workspace/model/notebook-module-availability";
 import { presentationStyleOptions } from "@/features/notebook-workspace/model/notebook-workspace";
 import { useNotebookRoute } from "@/features/notebook-workspace/model/use-notebook-route";
 import { NotebookModuleHeader } from "@/features/notebook-workspace/ui/NotebookModuleHeader";
+import { NotebookModuleUnavailable } from "@/features/notebook-workspace/ui/NotebookModuleUnavailable";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -54,6 +56,10 @@ function asPresentation(
 export function NotebookPresentationPage() {
   const queryClient = useQueryClient();
   const { notebookId, notebook } = useNotebookRoute();
+  const moduleAvailability = getNotebookModuleAvailability(
+    notebook,
+    "presentation",
+  );
   const [title, setTitle] = useState("");
   const [style, setStyle] = useState("business");
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -121,6 +127,16 @@ export function NotebookPresentationPage() {
     },
   });
 
+  if (!moduleAvailability.enabled) {
+    return (
+      <NotebookModuleUnavailable
+        notebookId={notebookId}
+        reason={moduleAvailability.reason ?? "Модуль временно недоступен."}
+        title="Презентация"
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <NotebookModuleHeader
@@ -178,8 +194,8 @@ export function NotebookPresentationPage() {
                   Предпросмотр слайдов
                 </CardTitle>
                 <CardDescription>
-                  Переключай слайды через swiper и смотри итоговую структуру как
-                  настоящую презентацию.
+                  Переключай слайды по очереди и смотри итоговую структуру как
+                  цельную презентацию.
                 </CardDescription>
               </div>
               <div className="rounded-full border border-border bg-muted px-3 py-1 text-sm text-muted-foreground">
@@ -228,9 +244,8 @@ export function NotebookPresentationPage() {
                               </div>
                             ) : (
                               <div className="flex h-full items-center justify-center rounded-3xl border border-dashed border-border bg-muted/25 px-6 py-8 text-center text-sm leading-7 text-muted-foreground md:text-base">
-                                Для этого слайда бэкенд не прислал bullets. Тип:
-                                {" "}
-                                {slide.type || "content"}
+                                Для этого слайда пока нет основных пунктов.
+                                Раздел: {slide.type || "content"}
                               </div>
                             )}
                           </div>
