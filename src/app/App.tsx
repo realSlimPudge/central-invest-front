@@ -4,14 +4,11 @@ import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./router/router";
 import { useEffect } from "react";
 import { useAuth } from "@/entities/auth/lib/use-auth";
-import NiceModal from "@ebay/nice-modal-react";
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <NiceModal.Provider>
-        <RouterProviderWithContext />
-      </NiceModal.Provider>
+      <RouterProviderWithContext />
     </QueryClientProvider>
   );
 }

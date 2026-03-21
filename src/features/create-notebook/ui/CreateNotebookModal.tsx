@@ -20,22 +20,19 @@ import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import { Button } from "@/shared/components/ui/button";
 import type { CreateNotebookBody } from "@/entities/notebook/api/dto/notebook.types";
 import { createNotebookScheme } from "../config/create-scheme";
-import { useNavigate } from "@tanstack/react-router";
 import { Input } from "@/shared/components/ui/input";
+import { useNavigate } from "@tanstack/react-router";
 
 const CreateNotebookModal = NiceModal.create(() => {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const modal = useModal();
+  const navigate = useNavigate();
 
   const mutation = useMutation({
     ...notebookOptions.create(),
     onSuccess: async (notebook) => {
       await queryClient.invalidateQueries({ queryKey: notebookKeys.list() });
-      await navigate({
-        to: "/notebooks/$id",
-        params: { id: notebook.id },
-      });
+      await navigate({ to: "/notebooks/$id", params: { id: notebook.id } });
     },
   });
 
@@ -80,7 +77,9 @@ const CreateNotebookModal = NiceModal.create(() => {
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field>
-                    <FieldLabel>Введите название блокнота</FieldLabel>
+                    <FieldLabel className="text-base">
+                      Название блокнота
+                    </FieldLabel>
 
                     <Input
                       id={field.name}
@@ -89,7 +88,7 @@ const CreateNotebookModal = NiceModal.create(() => {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Введите ключ инкассатора"
+                      placeholder="Введите название блокнота"
                       autoComplete="off"
                     />
 

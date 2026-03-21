@@ -1,28 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getRouteApi, Link } from "@tanstack/react-router";
-import {
-  AudioLines,
-  BookOpenText,
-  BrainCircuit,
-  FolderPlus,
-  GitBranchPlus,
-  RefreshCw,
-  Sparkles,
-  Trash2,
-  Upload,
-} from "lucide-react";
-import { type ChangeEvent, useMemo, useState } from "react";
+import { FolderPlus, RefreshCw, Sparkles, Trash2, Upload } from "lucide-react";
+import { type ChangeEvent, useState } from "react";
 
 import { notebookApi } from "@/entities/notebook/api/notebook.api";
 import { notebookKeys } from "@/entities/notebook/api/notebook.keys";
 import { notebookOptions } from "@/entities/notebook/api/notebook.options";
-import type {
-  MindmapNode,
-  Notebook,
-  NotebookFlashcard,
-  PodcastScriptLine,
-} from "@/entities/notebook/api/dto/notebook.types";
-import { AUDIO_BASE_URL } from "@/shared/constants/api";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -31,32 +14,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Separator } from "@/shared/components/ui/separator";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { cn } from "@/shared/lib/utils";
-
-type NotebookTab = "summary" | "mindmap" | "flashcards" | "podcast";
+import {
+  ArtifactPlaceholder,
+  NotebookTabs,
+  type NotebookTab,
+  type PodcastTone,
+  type SummaryStyle,
+} from "./NotebookTabs";
 
 type Notice = {
   tone: "success" | "error";
   text: string;
 };
-
-type NormalizedFlashcard = {
-  question: string;
-  answer: string;
-};
-
-type NormalizedPodcastLine = {
-  speaker: string;
-  text: string;
-};
-
-const summaryStyles = ["official", "simple", "concise"] as const;
-const podcastTones = ["popular", "formal", "energetic"] as const;
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ru-RU", {
@@ -75,127 +46,15 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-function normalizeMindmap(value: Notebook["mindmap"]) {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
-
-  const record = value as Record<string, unknown>;
-  if (typeof record.title !== "string") {
-    return null;
-  }
-
-  return value as MindmapNode;
-}
-
-function normalizeFlashcards(value: NotebookFlashcard[] | null | undefined) {
-  if (!value) {
-    return [] as NormalizedFlashcard[];
-  }
-
-  return value
-    .map((item) => {
-      if (typeof item === "string") {
-        return { question: item, answer: "" };
-      }
-
-      const question = item.question ?? item.front ?? item.term;
-      const answer = item.answer ?? item.back ?? item.definition;
-
-      if (typeof question !== "string") {
-        return null;
-      }
-
-      return {
-        question,
-        answer: typeof answer === "string" ? answer : "",
-      };
-    })
-    .filter((item): item is NormalizedFlashcard => item !== null);
-}
-
-function normalizePodcastScript(value: PodcastScriptLine[] | null | undefined) {
-  if (!value) {
-    return [] as NormalizedPodcastLine[];
-  }
-
-  return value
-    .map((item) => {
-      if (typeof item === "string") {
-        return { speaker: "Реплика", text: item };
-      }
-
-      const text = item.text ?? item.content;
-      if (typeof text !== "string") {
-        return null;
-      }
-
-      return {
-        speaker: typeof item.speaker === "string" ? item.speaker : "Реплика",
-        text,
-      };
-    })
-    .filter((item): item is NormalizedPodcastLine => item !== null);
-}
-
-function getPodcastUrl(url: string | null | undefined) {
-  if (!url) {
-    return null;
-  }
-
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
-  }
-
-  return `${AUDIO_BASE_URL}${url}`;
-}
-
-function ArtifactPlaceholder({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-3xl border border-dashed border-border bg-muted/35 px-6 py-12 text-center">
-      <p className="text-lg font-semibold text-[var(--text-h)]">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-function MindmapTree({ node }: { node: MindmapNode }) {
-  return (
-    <li className="relative pl-6">
-      <span className="absolute left-0 top-3 h-px w-3 bg-border" />
-      <div className="rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
-        <p className="font-medium text-[var(--text-h)]">{node.title}</p>
-      </div>
-      {node.children.length > 0 && (
-        <ul className="mt-4 space-y-3 border-l border-border/70 pl-4">
-          {node.children.map((child, index) => (
-            <MindmapTree key={`${child.title}-${index}`} node={child} />
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-}
-
 const notebookRouteApi = getRouteApi("/notebooks/$id");
 
 export function NotebookPage() {
   const { id: notebookId } = notebookRouteApi.useParams();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<NotebookTab>("summary");
-  const [summaryStyle, setSummaryStyle] =
-    useState<(typeof summaryStyles)[number]>("official");
+  const [summaryStyle, setSummaryStyle] = useState<SummaryStyle>("official");
   const [flashcardsCount, setFlashcardsCount] = useState(10);
-  const [podcastTone, setPodcastTone] =
-    useState<(typeof podcastTones)[number]>("popular");
+  const [podcastTone, setPodcastTone] = useState<PodcastTone>("popular");
   const [notice, setNotice] = useState<Notice | null>(null);
 
   const notebookQuery = useQuery(notebookOptions.detail(notebookId));
@@ -331,23 +190,6 @@ export function NotebookPage() {
     },
   });
 
-  const mindmap = useMemo(
-    () => normalizeMindmap(notebook?.mindmap),
-    [notebook?.mindmap],
-  );
-  const flashcards = useMemo(
-    () => normalizeFlashcards(notebook?.flashcards),
-    [notebook?.flashcards],
-  );
-  const podcastScript = useMemo(
-    () => normalizePodcastScript(notebook?.podcast_script),
-    [notebook?.podcast_script],
-  );
-  const podcastUrl = useMemo(
-    () => getPodcastUrl(notebook?.podcast_url),
-    [notebook?.podcast_url],
-  );
-
   const artifactStats = [
     {
       label: "Источники",
@@ -359,7 +201,7 @@ export function NotebookPage() {
     },
     {
       label: "Подкаст",
-      value: podcastUrl ? "Есть" : "Нет",
+      value: notebook?.podcast_url ? "Есть" : "Нет",
     },
   ];
 
@@ -453,298 +295,26 @@ export function NotebookPage() {
             </CardContent>
           </Card>
 
-          <Card className="ring-1 ring-border/80">
-            <CardHeader>
-              <Tabs
-                value={activeTab}
-                onValueChange={(value) => setActiveTab(value as NotebookTab)}
-                className="gap-4"
-              >
-                <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-muted p-2 md:grid-cols-4">
-                  {[
-                    { value: "summary", label: "Саммари", icon: BookOpenText },
-                    { value: "mindmap", label: "Mindmap", icon: GitBranchPlus },
-                    {
-                      value: "flashcards",
-                      label: "Карточки",
-                      icon: BrainCircuit,
-                    },
-                    { value: "podcast", label: "Подкаст", icon: AudioLines },
-                  ].map(({ value, label, icon: Icon }) => (
-                    <TabsTrigger
-                      key={value}
-                      value={value}
-                      className="h-10 rounded-xl font-medium"
-                    >
-                      <Icon className="size-4" />
-                      {label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </CardHeader>
-            <CardContent>
-              {notebookQuery.isPending ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-28 w-full rounded-3xl" />
-                  <Skeleton className="h-72 w-full rounded-3xl" />
-                </div>
-              ) : !notebook ? (
-                <ArtifactPlaceholder
-                  title="Не удалось загрузить блокнот"
-                  description="Похоже, блокнот недоступен или был удален. Попробуй выбрать другой в sidebar."
-                />
-              ) : activeTab === "summary" ? (
-                <div className="space-y-5">
-                  <div className="flex flex-col gap-4 rounded-3xl border border-border bg-muted/25 p-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                      <p className="text-lg font-semibold text-[var(--text-h)]">
-                        Саммари блокнота
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Краткая выжимка по текущим источникам. Можно
-                        перегенерировать в другом стиле.
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <select
-                        className="h-11 rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none"
-                        onChange={(event) =>
-                          setSummaryStyle(
-                            event.target
-                              .value as (typeof summaryStyles)[number],
-                          )
-                        }
-                        value={summaryStyle}
-                      >
-                        {summaryStyles.map((style) => (
-                          <option key={style} value={style}>
-                            {style}
-                          </option>
-                        ))}
-                      </select>
-                      <Button
-                        disabled={summaryMutation.isPending}
-                        onClick={() => void summaryMutation.mutateAsync()}
-                        type="button"
-                      >
-                        {summaryMutation.isPending ? (
-                          <Spinner />
-                        ) : (
-                          "Обновить саммари"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {notebook.summary ? (
-                    <div className="rounded-3xl border border-border bg-card px-6 py-5">
-                      <div className="whitespace-pre-wrap text-sm leading-7 text-foreground">
-                        {notebook.summary}
-                      </div>
-                    </div>
-                  ) : (
-                    <ArtifactPlaceholder
-                      title="Саммари пока нет"
-                      description="Сгенерируй первый summary, и он будет храниться прямо в ответе блокнота."
-                    />
-                  )}
-                </div>
-              ) : activeTab === "mindmap" ? (
-                <div className="space-y-5">
-                  <div className="flex flex-col gap-4 rounded-3xl border border-border bg-muted/25 p-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                      <p className="text-lg font-semibold text-[var(--text-h)]">
-                        Mindmap
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Иерархия тем и подтем по материалам блокнота.
-                      </p>
-                    </div>
-                    <Button
-                      disabled={mindmapMutation.isPending}
-                      onClick={() => void mindmapMutation.mutateAsync()}
-                      type="button"
-                    >
-                      {mindmapMutation.isPending ? (
-                        <Spinner />
-                      ) : (
-                        "Обновить mindmap"
-                      )}
-                    </Button>
-                  </div>
-
-                  {mindmap ? (
-                    <div className="rounded-3xl border border-border bg-card px-6 py-5">
-                      <ul className="space-y-4">
-                        <MindmapTree node={mindmap} />
-                      </ul>
-                    </div>
-                  ) : notebook.mindmap ? (
-                    <div className="rounded-3xl border border-border bg-card px-6 py-5">
-                      <pre className="overflow-x-auto text-sm leading-6 text-muted-foreground">
-                        {JSON.stringify(notebook.mindmap, null, 2)}
-                      </pre>
-                    </div>
-                  ) : (
-                    <ArtifactPlaceholder
-                      title="Mindmap пока не построена"
-                      description="Сгенерируй карту, чтобы увидеть структуру знаний по этому блокноту."
-                    />
-                  )}
-                </div>
-              ) : activeTab === "flashcards" ? (
-                <div className="space-y-5">
-                  <div className="flex flex-col gap-4 rounded-3xl border border-border bg-muted/25 p-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                      <p className="text-lg font-semibold text-[var(--text-h)]">
-                        Флэш-карточки
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Набор карточек для быстрого повторения по материалам
-                        блокнота.
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <Input
-                        className="w-28"
-                        max={50}
-                        min={1}
-                        onChange={(event) =>
-                          setFlashcardsCount(Number(event.target.value) || 1)
-                        }
-                        type="number"
-                        value={flashcardsCount}
-                      />
-                      <Button
-                        disabled={flashcardsMutation.isPending}
-                        onClick={() => void flashcardsMutation.mutateAsync()}
-                        type="button"
-                      >
-                        {flashcardsMutation.isPending ? (
-                          <Spinner />
-                        ) : (
-                          "Обновить карточки"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {flashcards.length > 0 ? (
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {flashcards.map((card, index) => (
-                        <div
-                          key={`${card.question}-${index}`}
-                          className="rounded-3xl border border-border bg-card px-5 py-5"
-                        >
-                          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                            Карточка {index + 1}
-                          </p>
-                          <p className="mt-4 text-lg font-semibold text-[var(--text-h)]">
-                            {card.question}
-                          </p>
-                          <Separator className="my-4" />
-                          <p className="text-sm leading-7 text-muted-foreground">
-                            {card.answer ||
-                              "Ответ не указан явно, но карточка сохранена в блокноте."}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : notebook.flashcards ? (
-                    <div className="rounded-3xl border border-border bg-card px-6 py-5">
-                      <pre className="overflow-x-auto text-sm leading-6 text-muted-foreground">
-                        {JSON.stringify(notebook.flashcards, null, 2)}
-                      </pre>
-                    </div>
-                  ) : (
-                    <ArtifactPlaceholder
-                      title="Карточек пока нет"
-                      description="Сгенерируй набор карточек, и они сохранятся в ответе конкретного блокнота."
-                    />
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-5">
-                  <div className="flex flex-col gap-4 rounded-3xl border border-border bg-muted/25 p-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                      <p className="text-lg font-semibold text-[var(--text-h)]">
-                        Подкаст
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Аудиоверсия и сценарий по содержимому блокнота.
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <select
-                        className="h-11 rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none"
-                        onChange={(event) =>
-                          setPodcastTone(
-                            event.target.value as (typeof podcastTones)[number],
-                          )
-                        }
-                        value={podcastTone}
-                      >
-                        {podcastTones.map((tone) => (
-                          <option key={tone} value={tone}>
-                            {tone}
-                          </option>
-                        ))}
-                      </select>
-                      <Button
-                        disabled={podcastMutation.isPending}
-                        onClick={() => void podcastMutation.mutateAsync()}
-                        type="button"
-                      >
-                        {podcastMutation.isPending ? (
-                          <Spinner />
-                        ) : (
-                          "Обновить подкаст"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {podcastUrl ? (
-                    <div className="space-y-4 rounded-3xl border border-border bg-card px-6 py-5">
-                      <audio className="w-full" controls src={podcastUrl} />
-                      <p className="break-all text-xs text-muted-foreground">
-                        {podcastUrl}
-                      </p>
-                    </div>
-                  ) : (
-                    <ArtifactPlaceholder
-                      title="Подкаст пока не готов"
-                      description="После генерации здесь появится аудиофайл, связанный с этим блокнотом."
-                    />
-                  )}
-
-                  {podcastScript.length > 0 && (
-                    <div className="rounded-3xl border border-border bg-card px-6 py-5">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Сценарий подкаста
-                      </p>
-                      <div className="mt-4 space-y-3">
-                        {podcastScript.map((line, index) => (
-                          <div
-                            key={`${line.speaker}-${index}`}
-                            className="rounded-2xl bg-muted/35 px-4 py-3"
-                          >
-                            <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                              {line.speaker}
-                            </p>
-                            <p className="mt-2 text-sm leading-7 text-foreground">
-                              {line.text}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <NotebookTabs
+            activeTab={activeTab}
+            flashcardsCount={flashcardsCount}
+            isFlashcardsPending={flashcardsMutation.isPending}
+            isMindmapPending={mindmapMutation.isPending}
+            isPending={notebookQuery.isPending}
+            isPodcastPending={podcastMutation.isPending}
+            isSummaryPending={summaryMutation.isPending}
+            notebook={notebook}
+            onFlashcardsCountChange={setFlashcardsCount}
+            onGenerateFlashcards={() => void flashcardsMutation.mutateAsync()}
+            onGenerateMindmap={() => void mindmapMutation.mutateAsync()}
+            onGeneratePodcast={() => void podcastMutation.mutateAsync()}
+            onGenerateSummary={() => void summaryMutation.mutateAsync()}
+            onPodcastToneChange={setPodcastTone}
+            onSummaryStyleChange={setSummaryStyle}
+            onTabChange={setActiveTab}
+            podcastTone={podcastTone}
+            summaryStyle={summaryStyle}
+          />
         </main>
 
         <aside className="space-y-6">
