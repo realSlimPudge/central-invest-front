@@ -15,7 +15,8 @@ export function NotebookFlashcardsPage() {
 
   const flashcardsMutation = useMutation({
     mutationKey: notebookKeys.flashcards(),
-    mutationFn: () => notebookApi.flashcards(notebookId, { count: flashcardsCount }),
+    mutationFn: () =>
+      notebookApi.flashcards(notebookId, { count: flashcardsCount }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: notebookKeys.detail(notebookId),
@@ -29,11 +30,39 @@ export function NotebookFlashcardsPage() {
     },
   });
 
+  const flashcardsCheckMutation = useMutation({
+    mutationKey: notebookKeys.checkFlashcard(),
+    mutationFn: ({
+      question,
+      correctAnswer,
+      userAnswer,
+    }: {
+      question: string;
+      correctAnswer: string;
+      userAnswer: string;
+    }) =>
+      notebookApi.checkFlashcard(notebookId, {
+        question,
+        correct_answer: correctAnswer,
+        user_answer: userAnswer,
+      }),
+  });
+
   return (
     <NotebookFlashcardsTab
       flashcards={notebook?.flashcards}
       flashcardsCount={flashcardsCount}
-      isPending={flashcardsMutation.isPending}
+      isGenerating={flashcardsMutation.isPending}
+      onCheck={async (payload) => {
+        try {
+          return await flashcardsCheckMutation.mutateAsync(payload);
+        } catch (error) {
+          toast.error(
+            getNotebookErrorMessage(error, "Не удалось проверить ответ"),
+          );
+          throw error;
+        }
+      }}
       onFlashcardsCountChange={setFlashcardsCount}
       onGenerate={() => void flashcardsMutation.mutateAsync()}
     />

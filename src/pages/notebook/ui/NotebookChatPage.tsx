@@ -67,12 +67,6 @@ export function NotebookChatPage() {
     useState<AbortController | null>(null);
   const threadEndRef = useRef<HTMLDivElement | null>(null);
 
-  const lastAssistantMessage = useMemo(
-    () =>
-      [...messages].reverse().find((message) => message.role === "assistant"),
-    [messages],
-  );
-
   useEffect(() => {
     threadEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, isStreaming]);
@@ -365,24 +359,6 @@ export function NotebookChatPage() {
                 {notebook?.sources.length ?? 0}
               </p>
             </div>
-            {lastAssistantMessage &&
-              lastAssistantMessage.sources.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                    Последние найденные фрагменты
-                  </p>
-                  {lastAssistantMessage.sources
-                    .slice(0, 3)
-                    .map((source, index) => (
-                      <div
-                        key={`${index}-${source.slice(0, 12)}`}
-                        className="rounded-2xl border border-border bg-card px-4 py-3 text-sm leading-6 text-muted-foreground"
-                      >
-                        {source}
-                      </div>
-                    ))}
-                </div>
-              )}
           </CardContent>
         </Card>
       </div>

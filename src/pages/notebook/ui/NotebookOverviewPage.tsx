@@ -74,15 +74,60 @@ export function NotebookOverviewPage() {
   const { notebookId, notebook } = useNotebookRoute();
 
   const readiness = [
-    { label: "Саммари", value: Boolean(notebook?.summary), to: "/notebooks/$id/summary", icon: BookOpenText },
-    { label: "Майнд-карта", value: Boolean(notebook?.mindmap), to: "/notebooks/$id/mindmap", icon: GitBranchPlus },
-    { label: "Карточки", value: Boolean(notebook?.flashcards), to: "/notebooks/$id/flashcards", icon: BrainCircuit },
-    { label: "Подкаст", value: Boolean(notebook?.podcast_url), to: "/notebooks/$id/podcast", icon: AudioLines },
-    { label: "Договор", value: Boolean(notebook?.contract), to: "/notebooks/$id/contract", icon: ScrollText },
-    { label: "Граф знаний", value: Boolean(notebook?.knowledge_graph), to: "/notebooks/$id/knowledge-graph", icon: Network },
-    { label: "Таймлайн", value: Boolean(notebook?.timeline), to: "/notebooks/$id/timeline", icon: TimerReset },
-    { label: "Вопросы", value: Boolean(notebook?.questions), to: "/notebooks/$id/questions", icon: MessageSquareText },
-    { label: "Презентация", value: Boolean(notebook?.presentation), to: "/notebooks/$id/presentation", icon: Presentation },
+    {
+      label: "Саммари",
+      value: Boolean(notebook?.summary),
+      to: "/notebooks/$id/summary",
+      icon: BookOpenText,
+    },
+    {
+      label: "Майнд-карта",
+      value: Boolean(notebook?.mindmap),
+      to: "/notebooks/$id/mindmap",
+      icon: GitBranchPlus,
+    },
+    {
+      label: "Карточки",
+      value: Boolean(notebook?.flashcards),
+      to: "/notebooks/$id/flashcards",
+      icon: BrainCircuit,
+    },
+    {
+      label: "Подкаст",
+      value: Boolean(notebook?.podcast_url),
+      to: "/notebooks/$id/podcast",
+      icon: AudioLines,
+    },
+    {
+      label: "Договор",
+      value: Boolean(notebook?.contract),
+      to: "/notebooks/$id/contract",
+      icon: ScrollText,
+    },
+    {
+      label: "Граф знаний",
+      value: Boolean(notebook?.knowledge_graph),
+      to: "/notebooks/$id/knowledge-graph",
+      icon: Network,
+    },
+    {
+      label: "Таймлайн",
+      value: Boolean(notebook?.timeline),
+      to: "/notebooks/$id/timeline",
+      icon: TimerReset,
+    },
+    {
+      label: "Вопросы",
+      value: Boolean(notebook?.questions),
+      to: "/notebooks/$id/questions",
+      icon: MessageSquareText,
+    },
+    {
+      label: "Презентация",
+      value: Boolean(notebook?.presentation),
+      to: "/notebooks/$id/presentation",
+      icon: Presentation,
+    },
   ];
 
   return (
@@ -101,7 +146,12 @@ export function NotebookOverviewPage() {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {quickActions.map(({ title, description, to, icon: Icon }) => (
-              <Link key={to} params={{ id: notebookId }} to={to}>
+              <Link
+                key={to}
+                params={{ id: notebookId }}
+                resetScroll={false}
+                to={to}
+              >
                 <div className="group h-full rounded-3xl border border-border bg-card px-5 py-5 transition-colors hover:bg-muted/50">
                   <div className="flex size-11 items-center justify-center rounded-2xl bg-muted text-[var(--text-h)]">
                     <Icon className="size-5" />
@@ -129,7 +179,12 @@ export function NotebookOverviewPage() {
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {readiness.map(({ label, value, to, icon: Icon }) => (
-              <Link key={to} params={{ id: notebookId }} to={to}>
+              <Link
+                key={to}
+                params={{ id: notebookId }}
+                resetScroll={false}
+                to={to}
+              >
                 <div className="rounded-2xl border border-border bg-card px-4 py-4 transition-colors hover:bg-muted/50">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -215,7 +270,8 @@ export function NotebookOverviewPage() {
                           {source.filename}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {source.chunks_count} чанков • {formatNotebookDate(source.created_at)}
+                          {source.chunks_count} чанков •{" "}
+                          {formatNotebookDate(source.created_at)}
                         </p>
                       </div>
                       <span
@@ -228,13 +284,19 @@ export function NotebookOverviewPage() {
                       </span>
                     </div>
                     {source.error && (
-                      <p className="mt-3 text-sm text-destructive">{source.error}</p>
+                      <p className="mt-3 text-sm text-destructive">
+                        {source.error}
+                      </p>
                     )}
                   </div>
                 ))}
 
                 <Button asChild className="w-full" variant="outline">
-                  <Link params={{ id: notebookId }} to="/notebooks/$id/sources">
+                  <Link
+                    params={{ id: notebookId }}
+                    resetScroll={false}
+                    to="/notebooks/$id/sources"
+                  >
                     Перейти к источникам
                   </Link>
                 </Button>
