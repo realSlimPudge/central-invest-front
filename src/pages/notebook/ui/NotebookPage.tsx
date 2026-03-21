@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import {
   AudioLines,
   BookOpenText,
@@ -160,7 +160,9 @@ function ArtifactPlaceholder({
   return (
     <div className="rounded-3xl border border-dashed border-border bg-muted/35 px-6 py-12 text-center">
       <p className="text-lg font-semibold text-[var(--text-h)]">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        {description}
+      </p>
     </div>
   );
 }
@@ -183,16 +185,17 @@ function MindmapTree({ node }: { node: MindmapNode }) {
   );
 }
 
-export function NotebookPage({ notebookId }: { notebookId: string }) {
+const notebookRouteApi = getRouteApi("/notebooks/$id");
+
+export function NotebookPage() {
+  const { id: notebookId } = notebookRouteApi.useParams();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<NotebookTab>("summary");
-  const [summaryStyle, setSummaryStyle] = useState<(typeof summaryStyles)[number]>(
-    "official",
-  );
+  const [summaryStyle, setSummaryStyle] =
+    useState<(typeof summaryStyles)[number]>("official");
   const [flashcardsCount, setFlashcardsCount] = useState(10);
-  const [podcastTone, setPodcastTone] = useState<(typeof podcastTones)[number]>(
-    "popular",
-  );
+  const [podcastTone, setPodcastTone] =
+    useState<(typeof podcastTones)[number]>("popular");
   const [notice, setNotice] = useState<Notice | null>(null);
 
   const notebookQuery = useQuery(notebookOptions.detail(notebookId));
@@ -206,7 +209,9 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
         tone: "success",
         text: "Саммари обновлено. Новая версия уже подгружена в страницу.",
       });
-      await queryClient.invalidateQueries({ queryKey: notebookKeys.detail(notebookId) });
+      await queryClient.invalidateQueries({
+        queryKey: notebookKeys.detail(notebookId),
+      });
     },
     onError: (error) => {
       setNotice({
@@ -224,7 +229,9 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
         tone: "success",
         text: "Mindmap обновлена и сохранена в блокноте.",
       });
-      await queryClient.invalidateQueries({ queryKey: notebookKeys.detail(notebookId) });
+      await queryClient.invalidateQueries({
+        queryKey: notebookKeys.detail(notebookId),
+      });
     },
     onError: (error) => {
       setNotice({
@@ -236,13 +243,16 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
 
   const flashcardsMutation = useMutation({
     mutationKey: notebookKeys.flashcards(),
-    mutationFn: () => notebookApi.flashcards(notebookId, { count: flashcardsCount }),
+    mutationFn: () =>
+      notebookApi.flashcards(notebookId, { count: flashcardsCount }),
     onSuccess: async () => {
       setNotice({
         tone: "success",
         text: "Карточки обновлены. Можно сразу посмотреть новый набор.",
       });
-      await queryClient.invalidateQueries({ queryKey: notebookKeys.detail(notebookId) });
+      await queryClient.invalidateQueries({
+        queryKey: notebookKeys.detail(notebookId),
+      });
     },
     onError: (error) => {
       setNotice({
@@ -260,7 +270,9 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
         tone: "success",
         text: "Подкаст обновлен. Если генерация длилась дольше, просто обнови страницу еще раз чуть позже.",
       });
-      await queryClient.invalidateQueries({ queryKey: notebookKeys.detail(notebookId) });
+      await queryClient.invalidateQueries({
+        queryKey: notebookKeys.detail(notebookId),
+      });
     },
     onError: (error) => {
       setNotice({
@@ -283,7 +295,9 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: notebookKeys.list() }),
-        queryClient.invalidateQueries({ queryKey: notebookKeys.detail(notebookId) }),
+        queryClient.invalidateQueries({
+          queryKey: notebookKeys.detail(notebookId),
+        }),
       ]);
     },
     onError: (error) => {
@@ -295,7 +309,8 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
   });
 
   const removeSourceMutation = useMutation({
-    mutationFn: (sourceId: string) => notebookApi.removeSource(notebookId, sourceId),
+    mutationFn: (sourceId: string) =>
+      notebookApi.removeSource(notebookId, sourceId),
     onSuccess: async () => {
       setNotice({
         tone: "success",
@@ -303,7 +318,9 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: notebookKeys.list() }),
-        queryClient.invalidateQueries({ queryKey: notebookKeys.detail(notebookId) }),
+        queryClient.invalidateQueries({
+          queryKey: notebookKeys.detail(notebookId),
+        }),
       ]);
     },
     onError: (error) => {
@@ -314,7 +331,10 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
     },
   });
 
-  const mindmap = useMemo(() => normalizeMindmap(notebook?.mindmap), [notebook?.mindmap]);
+  const mindmap = useMemo(
+    () => normalizeMindmap(notebook?.mindmap),
+    [notebook?.mindmap],
+  );
   const flashcards = useMemo(
     () => normalizeFlashcards(notebook?.flashcards),
     [notebook?.flashcards],
@@ -380,7 +400,10 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
 
               <div className="grid gap-3 sm:grid-cols-3">
                 {artifactStats.map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-border bg-card px-4 py-3">
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-border bg-card px-4 py-3"
+                  >
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
                       {item.label}
                     </p>
@@ -441,10 +464,18 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                   {[
                     { value: "summary", label: "Саммари", icon: BookOpenText },
                     { value: "mindmap", label: "Mindmap", icon: GitBranchPlus },
-                    { value: "flashcards", label: "Карточки", icon: BrainCircuit },
+                    {
+                      value: "flashcards",
+                      label: "Карточки",
+                      icon: BrainCircuit,
+                    },
                     { value: "podcast", label: "Подкаст", icon: AudioLines },
                   ].map(({ value, label, icon: Icon }) => (
-                    <TabsTrigger key={value} value={value} className="h-10 rounded-xl font-medium">
+                    <TabsTrigger
+                      key={value}
+                      value={value}
+                      className="h-10 rounded-xl font-medium"
+                    >
                       <Icon className="size-4" />
                       {label}
                     </TabsTrigger>
@@ -467,15 +498,23 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                 <div className="space-y-5">
                   <div className="flex flex-col gap-4 rounded-3xl border border-border bg-muted/25 p-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <p className="text-lg font-semibold text-[var(--text-h)]">Саммари блокнота</p>
+                      <p className="text-lg font-semibold text-[var(--text-h)]">
+                        Саммари блокнота
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        Краткая выжимка по текущим источникам. Можно перегенерировать в другом стиле.
+                        Краткая выжимка по текущим источникам. Можно
+                        перегенерировать в другом стиле.
                       </p>
                     </div>
                     <div className="flex flex-col gap-3 sm:flex-row">
                       <select
                         className="h-11 rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none"
-                        onChange={(event) => setSummaryStyle(event.target.value as (typeof summaryStyles)[number])}
+                        onChange={(event) =>
+                          setSummaryStyle(
+                            event.target
+                              .value as (typeof summaryStyles)[number],
+                          )
+                        }
                         value={summaryStyle}
                       >
                         {summaryStyles.map((style) => (
@@ -484,8 +523,16 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                           </option>
                         ))}
                       </select>
-                      <Button disabled={summaryMutation.isPending} onClick={() => void summaryMutation.mutateAsync()} type="button">
-                        {summaryMutation.isPending ? <Spinner /> : "Обновить саммари"}
+                      <Button
+                        disabled={summaryMutation.isPending}
+                        onClick={() => void summaryMutation.mutateAsync()}
+                        type="button"
+                      >
+                        {summaryMutation.isPending ? (
+                          <Spinner />
+                        ) : (
+                          "Обновить саммари"
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -507,13 +554,23 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                 <div className="space-y-5">
                   <div className="flex flex-col gap-4 rounded-3xl border border-border bg-muted/25 p-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <p className="text-lg font-semibold text-[var(--text-h)]">Mindmap</p>
+                      <p className="text-lg font-semibold text-[var(--text-h)]">
+                        Mindmap
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         Иерархия тем и подтем по материалам блокнота.
                       </p>
                     </div>
-                    <Button disabled={mindmapMutation.isPending} onClick={() => void mindmapMutation.mutateAsync()} type="button">
-                      {mindmapMutation.isPending ? <Spinner /> : "Обновить mindmap"}
+                    <Button
+                      disabled={mindmapMutation.isPending}
+                      onClick={() => void mindmapMutation.mutateAsync()}
+                      type="button"
+                    >
+                      {mindmapMutation.isPending ? (
+                        <Spinner />
+                      ) : (
+                        "Обновить mindmap"
+                      )}
                     </Button>
                   </div>
 
@@ -540,9 +597,12 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                 <div className="space-y-5">
                   <div className="flex flex-col gap-4 rounded-3xl border border-border bg-muted/25 p-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <p className="text-lg font-semibold text-[var(--text-h)]">Флэш-карточки</p>
+                      <p className="text-lg font-semibold text-[var(--text-h)]">
+                        Флэш-карточки
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        Набор карточек для быстрого повторения по материалам блокнота.
+                        Набор карточек для быстрого повторения по материалам
+                        блокнота.
                       </p>
                     </div>
                     <div className="flex flex-col gap-3 sm:flex-row">
@@ -550,12 +610,22 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                         className="w-28"
                         max={50}
                         min={1}
-                        onChange={(event) => setFlashcardsCount(Number(event.target.value) || 1)}
+                        onChange={(event) =>
+                          setFlashcardsCount(Number(event.target.value) || 1)
+                        }
                         type="number"
                         value={flashcardsCount}
                       />
-                      <Button disabled={flashcardsMutation.isPending} onClick={() => void flashcardsMutation.mutateAsync()} type="button">
-                        {flashcardsMutation.isPending ? <Spinner /> : "Обновить карточки"}
+                      <Button
+                        disabled={flashcardsMutation.isPending}
+                        onClick={() => void flashcardsMutation.mutateAsync()}
+                        type="button"
+                      >
+                        {flashcardsMutation.isPending ? (
+                          <Spinner />
+                        ) : (
+                          "Обновить карточки"
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -563,14 +633,20 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                   {flashcards.length > 0 ? (
                     <div className="grid gap-4 md:grid-cols-2">
                       {flashcards.map((card, index) => (
-                        <div key={`${card.question}-${index}`} className="rounded-3xl border border-border bg-card px-5 py-5">
+                        <div
+                          key={`${card.question}-${index}`}
+                          className="rounded-3xl border border-border bg-card px-5 py-5"
+                        >
                           <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                             Карточка {index + 1}
                           </p>
-                          <p className="mt-4 text-lg font-semibold text-[var(--text-h)]">{card.question}</p>
+                          <p className="mt-4 text-lg font-semibold text-[var(--text-h)]">
+                            {card.question}
+                          </p>
                           <Separator className="my-4" />
                           <p className="text-sm leading-7 text-muted-foreground">
-                            {card.answer || "Ответ не указан явно, но карточка сохранена в блокноте."}
+                            {card.answer ||
+                              "Ответ не указан явно, но карточка сохранена в блокноте."}
                           </p>
                         </div>
                       ))}
@@ -592,7 +668,9 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                 <div className="space-y-5">
                   <div className="flex flex-col gap-4 rounded-3xl border border-border bg-muted/25 p-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <p className="text-lg font-semibold text-[var(--text-h)]">Подкаст</p>
+                      <p className="text-lg font-semibold text-[var(--text-h)]">
+                        Подкаст
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         Аудиоверсия и сценарий по содержимому блокнота.
                       </p>
@@ -600,7 +678,11 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                     <div className="flex flex-col gap-3 sm:flex-row">
                       <select
                         className="h-11 rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none"
-                        onChange={(event) => setPodcastTone(event.target.value as (typeof podcastTones)[number])}
+                        onChange={(event) =>
+                          setPodcastTone(
+                            event.target.value as (typeof podcastTones)[number],
+                          )
+                        }
                         value={podcastTone}
                       >
                         {podcastTones.map((tone) => (
@@ -609,8 +691,16 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                           </option>
                         ))}
                       </select>
-                      <Button disabled={podcastMutation.isPending} onClick={() => void podcastMutation.mutateAsync()} type="button">
-                        {podcastMutation.isPending ? <Spinner /> : "Обновить подкаст"}
+                      <Button
+                        disabled={podcastMutation.isPending}
+                        onClick={() => void podcastMutation.mutateAsync()}
+                        type="button"
+                      >
+                        {podcastMutation.isPending ? (
+                          <Spinner />
+                        ) : (
+                          "Обновить подкаст"
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -618,7 +708,9 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                   {podcastUrl ? (
                     <div className="space-y-4 rounded-3xl border border-border bg-card px-6 py-5">
                       <audio className="w-full" controls src={podcastUrl} />
-                      <p className="break-all text-xs text-muted-foreground">{podcastUrl}</p>
+                      <p className="break-all text-xs text-muted-foreground">
+                        {podcastUrl}
+                      </p>
                     </div>
                   ) : (
                     <ArtifactPlaceholder
@@ -629,14 +721,21 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
 
                   {podcastScript.length > 0 && (
                     <div className="rounded-3xl border border-border bg-card px-6 py-5">
-                      <p className="text-sm font-medium text-muted-foreground">Сценарий подкаста</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Сценарий подкаста
+                      </p>
                       <div className="mt-4 space-y-3">
                         {podcastScript.map((line, index) => (
-                          <div key={`${line.speaker}-${index}`} className="rounded-2xl bg-muted/35 px-4 py-3">
+                          <div
+                            key={`${line.speaker}-${index}`}
+                            className="rounded-2xl bg-muted/35 px-4 py-3"
+                          >
                             <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
                               {line.speaker}
                             </p>
-                            <p className="mt-2 text-sm leading-7 text-foreground">{line.text}</p>
+                            <p className="mt-2 text-sm leading-7 text-foreground">
+                              {line.text}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -651,9 +750,12 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
         <aside className="space-y-6">
           <Card className="ring-1 ring-border/80">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-[var(--text-h)]">Источники</CardTitle>
+              <CardTitle className="text-lg font-semibold text-[var(--text-h)]">
+                Источники
+              </CardTitle>
               <CardDescription>
-                Материалы, на которых построен текущий блокнот и все его артефакты.
+                Материалы, на которых построен текущий блокнот и все его
+                артефакты.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -664,9 +766,12 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
                 )}
               >
                 <Upload className="size-8 text-primary" />
-                <p className="mt-4 text-sm font-semibold text-[var(--text-h)]">Добавить документы</p>
+                <p className="mt-4 text-sm font-semibold text-[var(--text-h)]">
+                  Добавить документы
+                </p>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  Загрузишь новые материалы — и detail page покажет обновленные данные после генерации.
+                  Загрузишь новые материалы — и detail page покажет обновленные
+                  данные после генерации.
                 </p>
                 <input
                   className="hidden"
@@ -685,18 +790,26 @@ export function NotebookPage({ notebookId }: { notebookId: string }) {
               ) : notebook && notebook.sources.length > 0 ? (
                 <div className="space-y-3">
                   {notebook.sources.map((source) => (
-                    <div key={source.id} className="rounded-2xl border border-border bg-card px-4 py-3">
+                    <div
+                      key={source.id}
+                      className="rounded-2xl border border-border bg-card px-4 py-3"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate font-medium text-[var(--text-h)]">{source.filename}</p>
+                          <p className="truncate font-medium text-[var(--text-h)]">
+                            {source.filename}
+                          </p>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {source.chunks_count} чанков • {formatDate(source.created_at)}
+                            {source.chunks_count} чанков •{" "}
+                            {formatDate(source.created_at)}
                           </p>
                         </div>
                         <Button
                           className="size-8 rounded-full"
                           disabled={removeSourceMutation.isPending}
-                          onClick={() => void removeSourceMutation.mutateAsync(source.id)}
+                          onClick={() =>
+                            void removeSourceMutation.mutateAsync(source.id)
+                          }
                           size="icon"
                           type="button"
                           variant="ghost"
