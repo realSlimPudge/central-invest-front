@@ -24,6 +24,8 @@
   "registries": {
     "@animate-ui": "https://animate-ui.com/r/{name}.json",
     "@magicui": "https://magicui.design/r/{name}",
-    "@react-bits": "https://reactbits.dev/r/{name}.json"
+    "@react-bits": "https://reactbits.dev/r/{name}.json",
+    "@shadcnblocks": "https://shadcnblocks.com/r/{name}.json",
+    "@diceui": "https://diceui.com/r/{name}.json"
   }
 }

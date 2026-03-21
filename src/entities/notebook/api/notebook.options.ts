@@ -15,6 +15,13 @@ export const notebookOptions = {
       queryKey: notebookKeys.detail(notebookId),
       queryFn: () => notebookApi.getOne(notebookId),
     }),
+  chat: (notebookId: string) =>
+    queryOptions({
+      queryKey: notebookKeys.chat(notebookId),
+      queryFn: () => notebookApi.getChat(notebookId),
+      staleTime: 1000 * 15,
+      retry: false,
+    }),
   create: () =>
     mutationOptions({
       mutationKey: notebookKeys.create(),
@@ -25,6 +32,12 @@ export const notebookOptions = {
       mutationKey: notebookKeys.upload(),
       mutationFn: ({ notebookId, file }: { notebookId: string; file: File }) =>
         notebookApi.uploadSource(notebookId, file),
+    }),
+  transcribeSource: () =>
+    mutationOptions({
+      mutationKey: notebookKeys.transcribe(),
+      mutationFn: ({ notebookId, file }: { notebookId: string; file: File }) =>
+        notebookApi.transcribeSource(notebookId, file),
     }),
   removeSource: () =>
     mutationOptions({

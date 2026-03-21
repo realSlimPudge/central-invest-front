@@ -10,4 +10,16 @@ export const notebookKeys = {
   mindmap: () => [...notebookKeys.all, "mindmap"] as const,
   flashcards: () => [...notebookKeys.all, "flashcards"] as const,
   podcast: () => [...notebookKeys.all, "podcast"] as const,
+  contour: () => [...notebookKeys.all, "contour"] as const,
+  transcribe: () => [...notebookKeys.all, "transcribe"] as const,
+  chat: (notebookId: string) =>
+    [...notebookKeys.detail(notebookId), "chat"] as const,
+  contract: () => [...notebookKeys.all, "contract"] as const,
+  knowledgeGraph: () => [...notebookKeys.all, "knowledge-graph"] as const,
+  timeline: () => [...notebookKeys.all, "timeline"] as const,
+  questions: () => [...notebookKeys.all, "questions"] as const,
+  presentation: () => [...notebookKeys.all, "presentation"] as const,
+  checkFlashcard: () => [...notebookKeys.all, "flashcards-check"] as const,
+  search: () => [...notebookKeys.all, "search"] as const,
+  compare: () => [...notebookKeys.all, "compare"] as const,
 };

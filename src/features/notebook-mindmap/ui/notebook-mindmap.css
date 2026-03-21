@@ -1,0 +1,45 @@
+.notebook-mindmap-flow {
+  position: relative;
+}
+
+.notebook-mindmap-flow .react-flow__edge-path,
+.notebook-mindmap-flow .react-flow__connection-path {
+  stroke-linecap: round;
+}
+
+.notebook-mindmap-flow .react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.notebook-mindmap-flow .react-flow__controls-button {
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.notebook-mindmap-flow .react-flow__controls-button:last-child {
+  border-bottom: 0;
+}
+
+.notebook-mindmap-flow .react-flow__controls-button:hover {
+  background: var(--muted);
+}
+
+.notebook-mindmap-flow .react-flow__minimap {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.notebook-mindmap-flow .react-flow__attribution {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--muted-foreground);
+  padding: 0.125rem 0.5rem;
+}

@@ -78,7 +78,6 @@ export function AppSidebar() {
                       preloadDelay={500}
                       to="/notebooks/$id"
                       params={{ id: notebook.id }}
-                      activeOptions={{ exact: true }}
                       activeProps={{
                         className:
                           "bg-sidebar-accent  text-sidebar-accent-foreground",

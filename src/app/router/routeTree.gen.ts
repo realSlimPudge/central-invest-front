@@ -13,7 +13,19 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as NotebooksRouteRouteImport } from './routes/notebooks/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks/index'
-import { Route as NotebooksIdRouteImport } from './routes/notebooks/$id'
+import { Route as NotebooksIdRouteRouteImport } from './routes/notebooks/$id/route'
+import { Route as NotebooksIdIndexRouteImport } from './routes/notebooks/$id/index'
+import { Route as NotebooksIdTimelineRouteImport } from './routes/notebooks/$id/timeline'
+import { Route as NotebooksIdSummaryRouteImport } from './routes/notebooks/$id/summary'
+import { Route as NotebooksIdSourcesRouteImport } from './routes/notebooks/$id/sources'
+import { Route as NotebooksIdQuestionsRouteImport } from './routes/notebooks/$id/questions'
+import { Route as NotebooksIdPresentationRouteImport } from './routes/notebooks/$id/presentation'
+import { Route as NotebooksIdPodcastRouteImport } from './routes/notebooks/$id/podcast'
+import { Route as NotebooksIdMindmapRouteImport } from './routes/notebooks/$id/mindmap'
+import { Route as NotebooksIdKnowledgeGraphRouteImport } from './routes/notebooks/$id/knowledge-graph'
+import { Route as NotebooksIdFlashcardsRouteImport } from './routes/notebooks/$id/flashcards'
+import { Route as NotebooksIdContractRouteImport } from './routes/notebooks/$id/contract'
+import { Route as NotebooksIdChatRouteImport } from './routes/notebooks/$id/chat'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -35,38 +47,166 @@ const NotebooksIndexRoute = NotebooksIndexRouteImport.update({
   path: '/',
   getParentRoute: () => NotebooksRouteRoute,
 } as any)
-const NotebooksIdRoute = NotebooksIdRouteImport.update({
+const NotebooksIdRouteRoute = NotebooksIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => NotebooksRouteRoute,
+} as any)
+const NotebooksIdIndexRoute = NotebooksIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdTimelineRoute = NotebooksIdTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdSummaryRoute = NotebooksIdSummaryRouteImport.update({
+  id: '/summary',
+  path: '/summary',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdSourcesRoute = NotebooksIdSourcesRouteImport.update({
+  id: '/sources',
+  path: '/sources',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdQuestionsRoute = NotebooksIdQuestionsRouteImport.update({
+  id: '/questions',
+  path: '/questions',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdPresentationRoute = NotebooksIdPresentationRouteImport.update({
+  id: '/presentation',
+  path: '/presentation',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdPodcastRoute = NotebooksIdPodcastRouteImport.update({
+  id: '/podcast',
+  path: '/podcast',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdMindmapRoute = NotebooksIdMindmapRouteImport.update({
+  id: '/mindmap',
+  path: '/mindmap',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdKnowledgeGraphRoute =
+  NotebooksIdKnowledgeGraphRouteImport.update({
+    id: '/knowledge-graph',
+    path: '/knowledge-graph',
+    getParentRoute: () => NotebooksIdRouteRoute,
+  } as any)
+const NotebooksIdFlashcardsRoute = NotebooksIdFlashcardsRouteImport.update({
+  id: '/flashcards',
+  path: '/flashcards',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdContractRoute = NotebooksIdContractRouteImport.update({
+  id: '/contract',
+  path: '/contract',
+  getParentRoute: () => NotebooksIdRouteRoute,
+} as any)
+const NotebooksIdChatRoute = NotebooksIdChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => NotebooksIdRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/notebooks': typeof NotebooksRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/notebooks/$id': typeof NotebooksIdRoute
+  '/notebooks/$id': typeof NotebooksIdRouteRouteWithChildren
   '/notebooks/': typeof NotebooksIndexRoute
+  '/notebooks/$id/chat': typeof NotebooksIdChatRoute
+  '/notebooks/$id/contract': typeof NotebooksIdContractRoute
+  '/notebooks/$id/flashcards': typeof NotebooksIdFlashcardsRoute
+  '/notebooks/$id/knowledge-graph': typeof NotebooksIdKnowledgeGraphRoute
+  '/notebooks/$id/mindmap': typeof NotebooksIdMindmapRoute
+  '/notebooks/$id/podcast': typeof NotebooksIdPodcastRoute
+  '/notebooks/$id/presentation': typeof NotebooksIdPresentationRoute
+  '/notebooks/$id/questions': typeof NotebooksIdQuestionsRoute
+  '/notebooks/$id/sources': typeof NotebooksIdSourcesRoute
+  '/notebooks/$id/summary': typeof NotebooksIdSummaryRoute
+  '/notebooks/$id/timeline': typeof NotebooksIdTimelineRoute
+  '/notebooks/$id/': typeof NotebooksIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/notebooks/$id': typeof NotebooksIdRoute
   '/notebooks': typeof NotebooksIndexRoute
+  '/notebooks/$id/chat': typeof NotebooksIdChatRoute
+  '/notebooks/$id/contract': typeof NotebooksIdContractRoute
+  '/notebooks/$id/flashcards': typeof NotebooksIdFlashcardsRoute
+  '/notebooks/$id/knowledge-graph': typeof NotebooksIdKnowledgeGraphRoute
+  '/notebooks/$id/mindmap': typeof NotebooksIdMindmapRoute
+  '/notebooks/$id/podcast': typeof NotebooksIdPodcastRoute
+  '/notebooks/$id/presentation': typeof NotebooksIdPresentationRoute
+  '/notebooks/$id/questions': typeof NotebooksIdQuestionsRoute
+  '/notebooks/$id/sources': typeof NotebooksIdSourcesRoute
+  '/notebooks/$id/summary': typeof NotebooksIdSummaryRoute
+  '/notebooks/$id/timeline': typeof NotebooksIdTimelineRoute
+  '/notebooks/$id': typeof NotebooksIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/notebooks': typeof NotebooksRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/notebooks/$id': typeof NotebooksIdRoute
+  '/notebooks/$id': typeof NotebooksIdRouteRouteWithChildren
   '/notebooks/': typeof NotebooksIndexRoute
+  '/notebooks/$id/chat': typeof NotebooksIdChatRoute
+  '/notebooks/$id/contract': typeof NotebooksIdContractRoute
+  '/notebooks/$id/flashcards': typeof NotebooksIdFlashcardsRoute
+  '/notebooks/$id/knowledge-graph': typeof NotebooksIdKnowledgeGraphRoute
+  '/notebooks/$id/mindmap': typeof NotebooksIdMindmapRoute
+  '/notebooks/$id/podcast': typeof NotebooksIdPodcastRoute
+  '/notebooks/$id/presentation': typeof NotebooksIdPresentationRoute
+  '/notebooks/$id/questions': typeof NotebooksIdQuestionsRoute
+  '/notebooks/$id/sources': typeof NotebooksIdSourcesRoute
+  '/notebooks/$id/summary': typeof NotebooksIdSummaryRoute
+  '/notebooks/$id/timeline': typeof NotebooksIdTimelineRoute
+  '/notebooks/$id/': typeof NotebooksIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/notebooks' | '/login' | '/notebooks/$id' | '/notebooks/'
+  fullPaths:
+    | '/'
+    | '/notebooks'
+    | '/login'
+    | '/notebooks/$id'
+    | '/notebooks/'
+    | '/notebooks/$id/chat'
+    | '/notebooks/$id/contract'
+    | '/notebooks/$id/flashcards'
+    | '/notebooks/$id/knowledge-graph'
+    | '/notebooks/$id/mindmap'
+    | '/notebooks/$id/podcast'
+    | '/notebooks/$id/presentation'
+    | '/notebooks/$id/questions'
+    | '/notebooks/$id/sources'
+    | '/notebooks/$id/summary'
+    | '/notebooks/$id/timeline'
+    | '/notebooks/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/notebooks/$id' | '/notebooks'
+  to:
+    | '/'
+    | '/login'
+    | '/notebooks'
+    | '/notebooks/$id/chat'
+    | '/notebooks/$id/contract'
+    | '/notebooks/$id/flashcards'
+    | '/notebooks/$id/knowledge-graph'
+    | '/notebooks/$id/mindmap'
+    | '/notebooks/$id/podcast'
+    | '/notebooks/$id/presentation'
+    | '/notebooks/$id/questions'
+    | '/notebooks/$id/sources'
+    | '/notebooks/$id/summary'
+    | '/notebooks/$id/timeline'
+    | '/notebooks/$id'
   id:
     | '__root__'
     | '/'
@@ -74,6 +214,18 @@ export interface FileRouteTypes {
     | '/login'
     | '/notebooks/$id'
     | '/notebooks/'
+    | '/notebooks/$id/chat'
+    | '/notebooks/$id/contract'
+    | '/notebooks/$id/flashcards'
+    | '/notebooks/$id/knowledge-graph'
+    | '/notebooks/$id/mindmap'
+    | '/notebooks/$id/podcast'
+    | '/notebooks/$id/presentation'
+    | '/notebooks/$id/questions'
+    | '/notebooks/$id/sources'
+    | '/notebooks/$id/summary'
+    | '/notebooks/$id/timeline'
+    | '/notebooks/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -116,19 +268,136 @@ declare module '@tanstack/react-router' {
       id: '/notebooks/$id'
       path: '/$id'
       fullPath: '/notebooks/$id'
-      preLoaderRoute: typeof NotebooksIdRouteImport
+      preLoaderRoute: typeof NotebooksIdRouteRouteImport
       parentRoute: typeof NotebooksRouteRoute
+    }
+    '/notebooks/$id/': {
+      id: '/notebooks/$id/'
+      path: '/'
+      fullPath: '/notebooks/$id/'
+      preLoaderRoute: typeof NotebooksIdIndexRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/timeline': {
+      id: '/notebooks/$id/timeline'
+      path: '/timeline'
+      fullPath: '/notebooks/$id/timeline'
+      preLoaderRoute: typeof NotebooksIdTimelineRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/summary': {
+      id: '/notebooks/$id/summary'
+      path: '/summary'
+      fullPath: '/notebooks/$id/summary'
+      preLoaderRoute: typeof NotebooksIdSummaryRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/sources': {
+      id: '/notebooks/$id/sources'
+      path: '/sources'
+      fullPath: '/notebooks/$id/sources'
+      preLoaderRoute: typeof NotebooksIdSourcesRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/questions': {
+      id: '/notebooks/$id/questions'
+      path: '/questions'
+      fullPath: '/notebooks/$id/questions'
+      preLoaderRoute: typeof NotebooksIdQuestionsRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/presentation': {
+      id: '/notebooks/$id/presentation'
+      path: '/presentation'
+      fullPath: '/notebooks/$id/presentation'
+      preLoaderRoute: typeof NotebooksIdPresentationRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/podcast': {
+      id: '/notebooks/$id/podcast'
+      path: '/podcast'
+      fullPath: '/notebooks/$id/podcast'
+      preLoaderRoute: typeof NotebooksIdPodcastRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/mindmap': {
+      id: '/notebooks/$id/mindmap'
+      path: '/mindmap'
+      fullPath: '/notebooks/$id/mindmap'
+      preLoaderRoute: typeof NotebooksIdMindmapRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/knowledge-graph': {
+      id: '/notebooks/$id/knowledge-graph'
+      path: '/knowledge-graph'
+      fullPath: '/notebooks/$id/knowledge-graph'
+      preLoaderRoute: typeof NotebooksIdKnowledgeGraphRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/flashcards': {
+      id: '/notebooks/$id/flashcards'
+      path: '/flashcards'
+      fullPath: '/notebooks/$id/flashcards'
+      preLoaderRoute: typeof NotebooksIdFlashcardsRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/contract': {
+      id: '/notebooks/$id/contract'
+      path: '/contract'
+      fullPath: '/notebooks/$id/contract'
+      preLoaderRoute: typeof NotebooksIdContractRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
+    }
+    '/notebooks/$id/chat': {
+      id: '/notebooks/$id/chat'
+      path: '/chat'
+      fullPath: '/notebooks/$id/chat'
+      preLoaderRoute: typeof NotebooksIdChatRouteImport
+      parentRoute: typeof NotebooksIdRouteRoute
     }
   }
 }
 
+interface NotebooksIdRouteRouteChildren {
+  NotebooksIdChatRoute: typeof NotebooksIdChatRoute
+  NotebooksIdContractRoute: typeof NotebooksIdContractRoute
+  NotebooksIdFlashcardsRoute: typeof NotebooksIdFlashcardsRoute
+  NotebooksIdKnowledgeGraphRoute: typeof NotebooksIdKnowledgeGraphRoute
+  NotebooksIdMindmapRoute: typeof NotebooksIdMindmapRoute
+  NotebooksIdPodcastRoute: typeof NotebooksIdPodcastRoute
+  NotebooksIdPresentationRoute: typeof NotebooksIdPresentationRoute
+  NotebooksIdQuestionsRoute: typeof NotebooksIdQuestionsRoute
+  NotebooksIdSourcesRoute: typeof NotebooksIdSourcesRoute
+  NotebooksIdSummaryRoute: typeof NotebooksIdSummaryRoute
+  NotebooksIdTimelineRoute: typeof NotebooksIdTimelineRoute
+  NotebooksIdIndexRoute: typeof NotebooksIdIndexRoute
+}
+
+const NotebooksIdRouteRouteChildren: NotebooksIdRouteRouteChildren = {
+  NotebooksIdChatRoute: NotebooksIdChatRoute,
+  NotebooksIdContractRoute: NotebooksIdContractRoute,
+  NotebooksIdFlashcardsRoute: NotebooksIdFlashcardsRoute,
+  NotebooksIdKnowledgeGraphRoute: NotebooksIdKnowledgeGraphRoute,
+  NotebooksIdMindmapRoute: NotebooksIdMindmapRoute,
+  NotebooksIdPodcastRoute: NotebooksIdPodcastRoute,
+  NotebooksIdPresentationRoute: NotebooksIdPresentationRoute,
+  NotebooksIdQuestionsRoute: NotebooksIdQuestionsRoute,
+  NotebooksIdSourcesRoute: NotebooksIdSourcesRoute,
+  NotebooksIdSummaryRoute: NotebooksIdSummaryRoute,
+  NotebooksIdTimelineRoute: NotebooksIdTimelineRoute,
+  NotebooksIdIndexRoute: NotebooksIdIndexRoute,
+}
+
+const NotebooksIdRouteRouteWithChildren =
+  NotebooksIdRouteRoute._addFileChildren(NotebooksIdRouteRouteChildren)
+
 interface NotebooksRouteRouteChildren {
-  NotebooksIdRoute: typeof NotebooksIdRoute
+  NotebooksIdRouteRoute: typeof NotebooksIdRouteRouteWithChildren
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
 const NotebooksRouteRouteChildren: NotebooksRouteRouteChildren = {
-  NotebooksIdRoute: NotebooksIdRoute,
+  NotebooksIdRouteRoute: NotebooksIdRouteRouteWithChildren,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
 
