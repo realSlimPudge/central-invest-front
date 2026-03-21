@@ -3,4 +3,14 @@ export type LoginBody = {
   password: string;
 };
 
-export type LoginRes = unknown;
+export type LoginRes = {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  gender: "male" | "female";
+  image: string;
+  accessToken: string;
+  refreshToken: string;
+};

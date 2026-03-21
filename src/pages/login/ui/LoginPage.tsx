@@ -1,3 +1,9 @@
+import { AuthForm } from "@/features/auth/ui/AuthForm";
+
 export function LoginPage() {
-  return <section>login page</section>;
+  return (
+    <section className="w-dvw h-dvh flex items-center justify-center">
+      <AuthForm />
+    </section>
+  );
 }
