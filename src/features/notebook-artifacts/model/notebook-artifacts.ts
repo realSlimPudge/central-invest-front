@@ -10,7 +10,7 @@ export type NotebookTab = "summary" | "mindmap" | "flashcards" | "podcast";
 
 export type SummaryStyle = "official" | "popular";
 
-export type PodcastTone = "popular" | "formal" | "energetic";
+export type PodcastTone = "popular" | "scientific";
 
 type NotebookTabItem = {
   value: NotebookTab;
@@ -30,8 +30,7 @@ export const SUMMARY_STYLE_OPTIONS: SelectOption<SummaryStyle>[] = [
 
 export const PODCAST_TONE_OPTIONS: SelectOption<PodcastTone>[] = [
   { value: "popular", label: "Популярный" },
-  { value: "formal", label: "Формальный" },
-  { value: "energetic", label: "Энергичный" },
+  { value: "scientific", label: "Научный" },
 ];
 
 export const NOTEBOOK_TAB_ITEMS: NotebookTabItem[] = [

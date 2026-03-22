@@ -41,6 +41,23 @@ export type PodcastScriptLine =
       [key: string]: unknown;
     };
 
+export type NotebookVoiceRecord = {
+  id?: string;
+  voice_id?: string;
+  voice?: string;
+  name?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  language?: string;
+  lang?: string;
+  locale?: string;
+  gender?: string;
+  provider?: string;
+  model?: string;
+  [key: string]: unknown;
+};
+
 export type NotebookContour = "open" | "closed" | string;
 
 export type NotebookContract = {
@@ -212,8 +229,14 @@ export type NotebookFlashcardsBody = {
   count?: number;
 };
 
+export type NotebookPodcastSpeaker = {
+  name: string;
+  voice: string;
+};
+
 export type NotebookPodcastBody = {
   tone?: string;
+  speakers?: NotebookPodcastSpeaker[];
 };
 
 export type NotebookSourceUrlBody = {

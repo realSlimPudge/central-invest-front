@@ -24,6 +24,7 @@ import type {
   NotebookSourceCompareBody,
   NotebookSourceUrlBody,
   NotebookSummaryBody,
+  NotebookVoiceRecord,
   PodcastResponse,
   UpdateNotebookBody,
 } from "./dto/notebook.types";
@@ -111,6 +112,15 @@ export const notebookApi = {
       method: "POST",
       path: `notebooks/${notebookId}/flashcards`,
       body,
+    }),
+  voices: () =>
+    apiClient.request<NotebookVoiceRecord[]>({
+      path: "voices",
+    }),
+  voiceSample: (voiceId: string) =>
+    apiClient.request<Blob>({
+      path: `voices/${voiceId}/sample`,
+      responseType: "blob",
     }),
   podcast: (notebookId: string, body: NotebookPodcastBody) =>
     apiClient.request<PodcastResponse>({

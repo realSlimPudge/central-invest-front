@@ -10,6 +10,7 @@ export const notebookKeys = {
   summary: () => [...notebookKeys.all, "summary"] as const,
   mindmap: () => [...notebookKeys.all, "mindmap"] as const,
   flashcards: () => [...notebookKeys.all, "flashcards"] as const,
+  voices: () => [...notebookKeys.all, "voices"] as const,
   podcast: () => [...notebookKeys.all, "podcast"] as const,
   contour: () => [...notebookKeys.all, "contour"] as const,
   transcribe: () => [...notebookKeys.all, "transcribe"] as const,

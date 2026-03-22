@@ -10,7 +10,7 @@ import {
 } from "@/shared/components/ui/highlight";
 import { getStrictContext } from "@/shared/lib/get-strict-context";
 import { useControlledState } from "@/shared/lib/use-controlled-state";
-import { useDataState } from "@/shared/lib/use-data-state";
+import { useDataState, type DataStateValue } from "@/shared/lib/use-data-state";
 
 type DropdownMenuContextType = {
   isOpen: boolean;
@@ -140,7 +140,7 @@ function DropdownMenuSubTrigger({
   const [, highlightedRef] = useDataState<HTMLDivElement>(
     "highlighted",
     undefined,
-    (value) => {
+    (value: DataStateValue) => {
       if (value === true) {
         const el = highlightedRef.current;
         const v = el?.dataset.value || el?.id || null;
@@ -355,7 +355,7 @@ function DropdownMenuItem({
   const [, highlightedRef] = useDataState<HTMLDivElement>(
     "highlighted",
     undefined,
-    (value) => {
+    (value: DataStateValue) => {
       if (value === true) {
         const el = highlightedRef.current;
         const v = el?.dataset.value || el?.id || null;
@@ -399,7 +399,7 @@ function DropdownMenuCheckboxItem({
   const [, highlightedRef] = useDataState<HTMLDivElement>(
     "highlighted",
     undefined,
-    (value) => {
+    (value: DataStateValue) => {
       if (value === true) {
         const el = highlightedRef.current;
         const v = el?.dataset.value || el?.id || null;
@@ -444,7 +444,7 @@ function DropdownMenuRadioItem({
   const [, highlightedRef] = useDataState<HTMLDivElement>(
     "highlighted",
     undefined,
-    (value) => {
+    (value: DataStateValue) => {
       if (value === true) {
         const el = highlightedRef.current;
         const v = el?.dataset.value || el?.id || null;

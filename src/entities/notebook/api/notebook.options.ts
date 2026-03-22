@@ -23,6 +23,12 @@ export const notebookOptions = {
       staleTime: 1000 * 15,
       retry: false,
     }),
+  voices: () =>
+    queryOptions({
+      queryKey: notebookKeys.voices(),
+      queryFn: notebookApi.voices,
+      staleTime: 1000 * 60 * 5,
+    }),
   create: () =>
     mutationOptions({
       mutationKey: notebookKeys.create(),
