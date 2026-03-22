@@ -254,6 +254,7 @@ export type NotebookQuestionsBody = {
 export type NotebookPresentationBody = {
   title?: string;
   style?: "business" | "academic" | "popular" | string;
+  prompt?: string;
 };
 
 export type NotebookFlashcardsCheckBody = {
