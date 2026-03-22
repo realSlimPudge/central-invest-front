@@ -10,7 +10,7 @@ export const Route = createFileRoute("/login")({
     //Redirect when user is auth
     if (context.auth.status === "AUTHENTICATED") {
       throw redirect({
-        to: search.redirect || "/",
+        to: search.redirect || "/notebooks",
       });
     }
   },

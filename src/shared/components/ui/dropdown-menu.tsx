@@ -8,9 +8,9 @@ import {
   type HighlightItemProps,
   type HighlightProps,
 } from "@/shared/components/ui/highlight";
-import { getStrictContext } from "@/lib/get-strict-context";
-import { useControlledState } from "@/hooks/use-controlled-state";
-import { useDataState } from "@/hooks/use-data-state";
+import { getStrictContext } from "@/shared/lib/get-strict-context";
+import { useControlledState } from "@/shared/lib/use-controlled-state";
+import { useDataState } from "@/shared/lib/use-data-state";
 
 type DropdownMenuContextType = {
   isOpen: boolean;
